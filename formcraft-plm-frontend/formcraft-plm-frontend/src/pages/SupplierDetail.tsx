@@ -55,16 +55,16 @@ function LinkProductModal({ isOpen, onClose, supplierId, onLinked }: { isOpen: b
               {rawMaterials.map((m) => <option key={m.id} value={m.id}>{m.name} ({m.code})</option>)}
             </select>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Price / kg</label>
               <input type="number" step="0.01" className="form-input" value={formData.pricePerKg} onChange={(e) => setFormData({ ...formData, pricePerKg: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Lead Time (days)</label>
               <input type="number" className="form-input" value={formData.leadTimeDays} onChange={(e) => setFormData({ ...formData, leadTimeDays: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">MOQ</label>
               <input type="number" className="form-input" value={formData.moq} onChange={(e) => setFormData({ ...formData, moq: e.target.value })} />
             </div>
@@ -134,6 +134,7 @@ export function SupplierDetail() {
         {links.length === 0 ? (
           <p className="text-muted">No raw materials linked to this supplier yet.</p>
         ) : (
+          <div className="table-responsive">
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
@@ -162,6 +163,7 @@ export function SupplierDetail() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

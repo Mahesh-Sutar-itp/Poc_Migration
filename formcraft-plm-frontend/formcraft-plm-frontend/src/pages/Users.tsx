@@ -45,12 +45,12 @@ function NewUserModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onClose
             <label className="form-label">Password</label>
             <input type="password" minLength={8} className="form-input" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Full Name</label>
               <input className="form-input" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Email</label>
               <input type="email" className="form-input" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
             </div>
@@ -123,6 +123,7 @@ export function Users() {
       </div>
 
       <div className="glass-panel" style={{ padding: '1.5rem' }}>
+       <div className="table-responsive">
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
@@ -162,6 +163,7 @@ export function Users() {
             ))}
           </tbody>
         </table>
+       </div>
       </div>
 
       <NewUserModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreated={loadData} />

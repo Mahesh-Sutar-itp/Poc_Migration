@@ -70,8 +70,8 @@ export function Reports() {
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h2>Quality Pass Rate</h2>
           {passRate ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-              <div style={{ height: '200px', width: '200px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '2rem' }}>
+              <div style={{ height: '200px', width: '200px', flexShrink: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={passRateData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>

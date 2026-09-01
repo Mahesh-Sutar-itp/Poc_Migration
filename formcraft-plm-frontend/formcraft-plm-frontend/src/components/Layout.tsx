@@ -15,6 +15,8 @@ import {
   Bell,
   LogOut,
   User as UserIcon,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import * as notificationsApi from '../api/notifications';
@@ -49,6 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +103,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-layout">
-      <div className="sidebar">
+      <button
+        className="btn btn-secondary hamburger-btn"
+        onClick={() => setIsMobileNavOpen((v) => !v)}
+        aria-label="Toggle navigation"
+      >
+        {isMobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+      <div
+        className={`sidebar-overlay ${isMobileNavOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileNavOpen(false)}
+      />
+      <div className={`sidebar ${isMobileNavOpen ? 'open' : ''}`}>
         <h2 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Beaker color="var(--accent-primary)" /> FormCraft PLM
         </h2>
@@ -110,6 +124,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               key={item.to}
               to={item.to}
               className={`nav-link ${location.pathname === item.to ? 'active' : ''}`}
+              onClick={() => setIsMobileNavOpen(false)}
             >
               {item.icon} {item.label}
             </Link>
@@ -151,7 +166,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   position: 'absolute',
                   right: 0,
                   top: '2.75rem',
-                  width: '360px',
+                  width: 'min(360px, calc(100vw - 2rem))',
                   maxHeight: '420px',
                   overflowY: 'auto',
                   padding: '1rem',

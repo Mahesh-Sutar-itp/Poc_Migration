@@ -60,26 +60,26 @@ function ReceiveLotModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
               {materials.map((m) => <option key={m.id} value={m.id}>{m.name} ({m.code})</option>)}
             </select>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Lot Number</label>
               <input className="form-input" required value={formData.lotNumber} onChange={(e) => setFormData({ ...formData, lotNumber: e.target.value })} placeholder="e.g. LOT-2026-042" />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Quantity</label>
               <input type="number" step="0.01" className="form-input" required value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Unit</label>
               <input className="form-input" value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} />
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Expiry Date</label>
               <input type="date" className="form-input" value={formData.expiryDate} onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Supplier</label>
               <select className="form-select" value={formData.supplierId} onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}>
                 <option value="">-- None --</option>
@@ -206,6 +206,7 @@ export function Inventory() {
         {lots.length === 0 ? (
           <p className="text-muted">No stock lots yet.</p>
         ) : (
+          <div className="table-responsive">
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
@@ -246,6 +247,7 @@ export function Inventory() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

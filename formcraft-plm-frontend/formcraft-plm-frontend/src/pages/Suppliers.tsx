@@ -44,12 +44,12 @@ function NewSupplierModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onC
             <label className="form-label">Name</label>
             <input className="form-input" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Contact Name</label>
               <input className="form-input" value={formData.contactName} onChange={(e) => setFormData({ ...formData, contactName: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Contact Email</label>
               <input className="form-input" type="email" value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })} />
             </div>

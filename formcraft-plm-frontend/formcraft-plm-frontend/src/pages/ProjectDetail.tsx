@@ -42,12 +42,12 @@ function AddMilestoneModal({ isOpen, onClose, projectId, nextGate, onAdded }: { 
             <label className="form-label">Name</label>
             <input className="form-input" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Gate 2: Formulation & Costing" />
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Gate Number</label>
               <input type="number" min={1} className="form-input" required value={formData.gateNumber} onChange={(e) => setFormData({ ...formData, gateNumber: Number(e.target.value) })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Due Date</label>
               <input type="date" className="form-input" value={formData.dueDate} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} />
             </div>

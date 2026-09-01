@@ -159,16 +159,16 @@ function SpecModal({ isOpen, onClose, productId, onSaved }: { isOpen: boolean; o
               <option value="PACKAGING">Packaging</option>
             </select>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Min</label>
               <input type="number" step="0.01" className="form-input" value={formData.minValue} onChange={(e) => setFormData({ ...formData, minValue: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Max</label>
               <input type="number" step="0.01" className="form-input" value={formData.maxValue} onChange={(e) => setFormData({ ...formData, maxValue: e.target.value })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '140px' }}>
               <label className="form-label">Unit</label>
               <input className="form-input" value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} placeholder="%" />
             </div>
@@ -524,6 +524,7 @@ export function ProductDetail() {
               <p className="text-muted">No composition lines.</p>
             </div>
           ) : (
+            <div className="table-responsive">
             <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
@@ -548,6 +549,7 @@ export function ProductDetail() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
@@ -622,6 +624,7 @@ export function ProductDetail() {
           {specs.length === 0 ? (
             <p className="text-muted">No specifications defined.</p>
           ) : (
+            <div className="table-responsive">
             <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
@@ -646,6 +649,7 @@ export function ProductDetail() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
