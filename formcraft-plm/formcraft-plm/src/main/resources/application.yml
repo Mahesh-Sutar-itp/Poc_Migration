@@ -56,14 +56,6 @@ formcraft:
   jwt:
     secret: ${FORMCRAFT_JWT_SECRET:formcraft-plm-dev-secret-key-please-override-in-production-min-256-bits}
     expiration-ms: ${FORMCRAFT_JWT_EXPIRATION_MS:86400000}
-  formulation:
-    default-chain-id: default
-    fast-chain-id: fastFormulationChain
-    max-batch-size: 100
-  cache:
-    ttl-seconds: 300
-  batch:
-    thread-pool-size: 4
 
 logging:
   level:

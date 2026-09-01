@@ -8,6 +8,4 @@ import java.util.List;
 
 @Repository
 public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilestone, Long> {
-
-    List<ProjectMilestone> findByProjectIdOrderByGateNumberAsc(Long projectId);
 }

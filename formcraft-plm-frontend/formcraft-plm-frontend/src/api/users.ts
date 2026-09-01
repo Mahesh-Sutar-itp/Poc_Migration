@@ -35,7 +35,3 @@ export function updateUser(id: number, data: UpdateUserRequest) {
 export function resetPassword(id: number, newPassword: string) {
   return api.post<void>(`/users/${id}/reset-password`, { newPassword });
 }
-
-export function deleteUser(id: number) {
-  return api.del<void>(`/users/${id}`);
-}

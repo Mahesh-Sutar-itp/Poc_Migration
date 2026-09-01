@@ -18,10 +18,6 @@ export function createSpecification(productId: number, data: SpecRequest) {
   return api.post<Specification>(`/products/${productId}/specifications`, data);
 }
 
-export function updateSpecification(id: number, data: SpecRequest) {
-  return api.put<Specification>(`/specifications/${id}`, data);
-}
-
 export function deleteSpecification(id: number) {
   return api.del<void>(`/specifications/${id}`);
 }

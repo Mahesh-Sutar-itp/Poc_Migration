@@ -10,8 +10,6 @@ import fr.formcraft.repo.jpa.CompositionLineRepository;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.jpa.WorkflowTaskRepository;
 import fr.formcraft.repo.quality.QualityService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +20,6 @@ import java.util.List;
 
 @Service("qualityService")
 public class QualityServiceImpl implements QualityService {
-
-    private static final Log logger = LogFactory.getLog(QualityServiceImpl.class);
 
     private final ProductRepository productRepository;
     private final CompositionLineRepository compositionLineRepository;

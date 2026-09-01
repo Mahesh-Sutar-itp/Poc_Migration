@@ -1,8 +1,0 @@
-/build/src/test/java/fr/formcraft/repo/auth/AuthServiceTest.java
-/build/src/test/java/fr/formcraft/repo/inventory/InventoryServiceTest.java
-/build/src/test/java/fr/formcraft/repo/product/ProductServiceTest.java
-/build/src/test/java/fr/formcraft/security/JwtServiceTest.java
-/build/src/test/java/fr/formcraft/repo/formulation/FormulationServiceTest.java
-/build/src/test/java/fr/formcraft/repo/nonconformance/NonConformanceServiceTest.java
-/build/src/test/java/fr/formcraft/repo/changerequest/ChangeRequestServiceTest.java
-/build/src/test/java/fr/formcraft/repo/workflow/WorkflowServiceTest.java

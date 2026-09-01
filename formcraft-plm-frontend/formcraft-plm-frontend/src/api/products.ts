@@ -44,10 +44,6 @@ export function updateProduct(id: number, data: Partial<CreateProductRequest>) {
   return api.put<Product>(`/products/${id}`, data);
 }
 
-export function deleteProduct(id: number) {
-  return api.del<void>(`/products/${id}`);
-}
-
 export function fetchComposition(id: number) {
   return api.get<CompositionLine[]>(`/products/${id}/composition`);
 }
@@ -81,10 +77,6 @@ export function transitionWorkflow(
 ) {
   const query = params ? `?${new URLSearchParams(params).toString()}` : '';
   return api.post<Product>(`/products/${id}/workflow/${action}${query}`);
-}
-
-export function fetchWorkflowTasks(id: number) {
-  return api.get<WorkflowTask[]>(`/products/${id}/workflow/tasks`);
 }
 
 export function fetchMyTasks() {

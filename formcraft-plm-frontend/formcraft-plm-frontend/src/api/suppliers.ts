@@ -28,10 +28,6 @@ export function updateSupplier(id: number, data: SupplierRequest) {
   return api.put<Supplier>(`/suppliers/${id}`, data);
 }
 
-export function deleteSupplier(id: number) {
-  return api.del<void>(`/suppliers/${id}`);
-}
-
 export function fetchSupplierProducts(id: number) {
   return api.get<SupplierProduct[]>(`/suppliers/${id}/products`);
 }

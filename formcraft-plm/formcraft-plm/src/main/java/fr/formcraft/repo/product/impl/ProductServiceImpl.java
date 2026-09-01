@@ -1,6 +1,5 @@
 package fr.formcraft.repo.product.impl;
 
-import fr.formcraft.common.constants.RepoConsts;
 import fr.formcraft.common.exception.EntityNotFoundException;
 import fr.formcraft.common.exception.FormCraftException;
 import fr.formcraft.model.entity.CompositionLine;

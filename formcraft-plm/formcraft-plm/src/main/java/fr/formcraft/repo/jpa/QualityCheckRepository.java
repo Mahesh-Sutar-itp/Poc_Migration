@@ -11,6 +11,4 @@ import java.util.List;
 public interface QualityCheckRepository extends JpaRepository<QualityCheck, Long> {
 
     long countByStatus(QualityCheckStatus status);
-
-    List<QualityCheck> findByCheckType(String checkType);
 }
