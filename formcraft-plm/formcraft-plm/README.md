@@ -20,7 +20,9 @@ docker-compose up --build
 ```
 
 App starts at: `http://localhost:8080/api`  
-Credentials: `admin` / `admin123`
+Credentials: `admin` / `Passw0rd!` (seeded in `V2__plm_expansion.sql`; also valid for `plmmanager`, `quality`, `purchasing`, `viewer`)
+
+Auth is JWT-based, not HTTP Basic — call `POST /api/auth/login` to get a token, then send it as `Authorization: Bearer <token>` on subsequent requests.
 
 ## API Endpoints
 
@@ -42,20 +44,25 @@ Credentials: `admin` / `admin123`
 ## Example: Full Formulation Flow
 
 ```bash
+# 0. Log in and grab a token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"Passw0rd!"}' | jq -r .token)
+
 # 1. Get a product (Chocolate Brownie is pre-seeded as id=9)
-curl -u admin:admin123 http://localhost:8080/api/products/9
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/products/9
 
 # 2. Formulate it (runs Nutritional → Cost → Compliance → Score chain)
-curl -u admin:admin123 -X POST "http://localhost:8080/api/products/9/formulate"
+curl -H "Authorization: Bearer $TOKEN" -X POST "http://localhost:8080/api/products/9/formulate"
 
 # 3. Submit for validation (creates workflow tasks)
-curl -u admin:admin123 -X POST "http://localhost:8080/api/products/9/workflow/submit?assignee=admin"
+curl -H "Authorization: Bearer $TOKEN" -X POST "http://localhost:8080/api/products/9/workflow/submit?assignee=admin"
 
 # 4. Run quality checks
-curl -u admin:admin123 -X POST http://localhost:8080/api/products/9/quality/run-all
+curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/api/products/9/quality/run-all
 
 # 5. Approve
-curl -u admin:admin123 -X POST http://localhost:8080/api/products/9/workflow/approve
+curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/api/products/9/workflow/approve
 ```
 
 ## Tech Stack (Source — Before AWS Transform)
@@ -69,7 +76,7 @@ curl -u admin:admin123 -X POST http://localhost:8080/api/products/9/workflow/app
 | Database | PostgreSQL 15 |
 | DB Migrations | Flyway |
 | Formula Engine | Spring SPEL |
-| Security | Spring Security (Basic Auth) |
+| Security | Spring Security (JWT, DB-backed users) |
 | Build | Maven |
 | Tests | JUnit 5 + Mockito |
 | Container | Docker + Docker Compose |
