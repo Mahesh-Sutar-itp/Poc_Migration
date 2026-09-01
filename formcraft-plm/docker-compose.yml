@@ -50,7 +50,7 @@ services:
 
   formcraft-frontend:
     build:
-      context: ../../formcraft-plm-frontend/formcraft-plm-frontend
+      context: ../formcraft-plm-frontend
       dockerfile: Dockerfile
     container_name: formcraft-plm-frontend
     ports:
