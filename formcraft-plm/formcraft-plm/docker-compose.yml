@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL Database ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: formcraft-db
+    environment:
+      POSTGRES_DB: formcraft
+      POSTGRES_USER: formcraft
+      POSTGRES_PASSWORD: formcraft123
+    ports:
+      - "5432:5432"
+    volumes:
+      - formcraft_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U formcraft -d formcraft"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - formcraft-network
+
+  # ── FormCraft PLM Application ────────────────────────────────────────────
+  formcraft-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: formcraft-plm
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/formcraft
+      SPRING_DATASOURCE_USERNAME: formcraft
+      SPRING_DATASOURCE_PASSWORD: formcraft123
+      FORMCRAFT_JWT_SECRET: formcraft-plm-docker-compose-secret-key-min-256-bits-change-me
+      FORMCRAFT_JWT_EXPIRATION_MS: 86400000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - formcraft-network
+    restart: on-failure
+
+  formcraft-frontend:
+    build:
+      context: ../../formcraft-plm-frontend/formcraft-plm-frontend
+      dockerfile: Dockerfile
+    container_name: formcraft-plm-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - formcraft-app
+    networks:
+      - formcraft-network
+    restart: on-failure
+
+volumes:
+  formcraft_db_data:
+    driver: local
+
+networks:
+  formcraft-network:
+    driver: bridge

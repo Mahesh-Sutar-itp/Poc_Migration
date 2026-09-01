@@ -1,0 +1,91 @@
+time="2026-09-01T01:44:38+05:30" level=warning msg="C:\\Users\\MaheshSutar(CloudPla\\Downloads\\formcraft\\formcraft-plm\\formcraft-plm\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Image formcraft-plm-formcraft-app Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 659B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.15kB 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/maven:3.9.6-eclipse-temurin-21
+#3 DONE 0.1s
+
+#4 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-jammy
+#4 ...
+
+#5 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#4 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-jammy
+#4 DONE 2.3s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 DONE 0.0s
+
+#8 [stage-1 1/5] FROM docker.io/library/eclipse-temurin:21-jre-jammy@sha256:eebd356ad7358b7094758e5787a6726f332917cfd56feab6457c56dab895cdbf
+#8 resolve docker.io/library/eclipse-temurin:21-jre-jammy@sha256:eebd356ad7358b7094758e5787a6726f332917cfd56feab6457c56dab895cdbf 0.1s done
+#8 DONE 0.1s
+
+#9 [builder 1/6] FROM docker.io/library/maven:3.9.6-eclipse-temurin-21@sha256:8d63d4c1902cb12d9e79a70671b18ebe26358cb592561af33ca1808f00d935cb
+#9 resolve docker.io/library/maven:3.9.6-eclipse-temurin-21@sha256:8d63d4c1902cb12d9e79a70671b18ebe26358cb592561af33ca1808f00d935cb 0.1s done
+#9 DONE 0.1s
+
+#7 [internal] load build context
+#7 transferring context: 16.62kB 0.1s done
+#7 DONE 0.1s
+
+#10 [builder 3/6] COPY pom.xml .
+#10 CACHED
+
+#11 [builder 2/6] WORKDIR /build
+#11 CACHED
+
+#12 [builder 4/6] RUN mvn dependency:go-offline -q
+#12 CACHED
+
+#13 [builder 5/6] COPY src ./src
+#13 DONE 0.1s
+
+#14 [builder 6/6] RUN mvn clean package -DskipTests -q
+#14 DONE 11.6s
+
+#15 [stage-1 2/5] WORKDIR /app
+#15 CACHED
+
+#16 [stage-1 3/5] RUN groupadd --system formcraft && useradd --system --gid formcraft formcraft
+#16 CACHED
+
+#17 [stage-1 4/5] COPY --from=builder /build/target/formcraft-plm-1.0.0.jar app.jar
+#17 DONE 0.2s
+
+#18 [stage-1 5/5] RUN chown formcraft:formcraft app.jar
+#18 DONE 0.4s
+
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 2.0s done
+#19 exporting manifest sha256:9e9be6c39cac2c26256446995effc405efae446d6bceeeec59659524f17d30ad 0.0s done
+#19 exporting config sha256:ccb9b5f171363732ec6d931a5bad2895859d9113e9f5b2dd0e2e8350bc0c22cf 0.0s done
+#19 exporting attestation manifest sha256:4c1490e97650f47eb86a401b40949de4ef79f96d9e3c7cbf46d1892b31dca7c3 0.0s done
+#19 exporting manifest list sha256:4238b67e4dc21765c2fb9eeeee30530aa83584dd19c0f730dd0759e582f27129 0.0s done
+#19 naming to docker.io/library/formcraft-plm-formcraft-app:latest
+#19 naming to docker.io/library/formcraft-plm-formcraft-app:latest done
+#19 unpacking to docker.io/library/formcraft-plm-formcraft-app:latest
+#19 unpacking to docker.io/library/formcraft-plm-formcraft-app:latest 0.9s done
+#19 DONE 3.0s
+
+#20 resolving provenance for metadata file
+#20 DONE 0.0s
+ Image formcraft-plm-formcraft-app Built 
+ Container formcraft-db Running 
+ Container formcraft-plm Recreate 
+ Container formcraft-plm Recreated 
+ Container formcraft-db Waiting 
+ Container formcraft-db Healthy 
+ Container formcraft-plm Starting 
+ Container formcraft-plm Started 

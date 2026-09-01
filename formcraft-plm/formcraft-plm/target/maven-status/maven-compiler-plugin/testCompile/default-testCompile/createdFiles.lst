@@ -1,0 +1,5 @@
+fr/formcraft/repo/inventory/InventoryServiceTest.class
+fr/formcraft/repo/auth/AuthServiceTest.class
+fr/formcraft/repo/changerequest/ChangeRequestServiceTest.class
+fr/formcraft/security/JwtServiceTest.class
+fr/formcraft/repo/nonconformance/NonConformanceServiceTest.class
