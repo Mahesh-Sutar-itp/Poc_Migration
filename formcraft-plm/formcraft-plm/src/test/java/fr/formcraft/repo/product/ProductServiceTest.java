@@ -103,6 +103,56 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.deleteProduct(1L))
                 .isInstanceOf(FormCraftException.class)
-                .hasMessageContaining("validated");
+                .hasMessageContaining("VALIDATED");
+    }
+
+    @Test
+    @DisplayName("deleteProduct throws when product is IN_VALIDATION")
+    void deleteInValidationProductThrows() {
+        testProduct.setState(ProductState.IN_VALIDATION);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+
+        assertThatThrownBy(() -> productService.deleteProduct(1L))
+                .isInstanceOf(FormCraftException.class)
+                .hasMessageContaining("IN_VALIDATION");
+    }
+
+    @Test
+    @DisplayName("deleteProduct throws when product is used as an ingredient elsewhere")
+    void deleteProductUsedAsIngredientThrows() {
+        testProduct.setState(ProductState.DRAFT);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+        when(compositionLineRepository.existsByIngredientId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> productService.deleteProduct(1L))
+                .isInstanceOf(FormCraftException.class)
+                .hasMessageContaining("ingredient");
+
+        verify(productRepository, never()).delete(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("deleteProduct succeeds for DRAFT product with no dependents")
+    void deleteDraftProductSucceeds() {
+        testProduct.setState(ProductState.DRAFT);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+        when(compositionLineRepository.existsByIngredientId(1L)).thenReturn(false);
+
+        productService.deleteProduct(1L);
+
+        verify(productRepository).delete(any(Product.class));
+        verify(auditService).logAction(eq(1L), eq("Product"), eq("DELETE"), anyString());
+    }
+
+    @Test
+    @DisplayName("deleteProduct succeeds for ARCHIVED product with no dependents")
+    void deleteArchivedProductSucceeds() {
+        testProduct.setState(ProductState.ARCHIVED);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+        when(compositionLineRepository.existsByIngredientId(1L)).thenReturn(false);
+
+        productService.deleteProduct(1L);
+
+        verify(productRepository).delete(any(Product.class));
     }
 }

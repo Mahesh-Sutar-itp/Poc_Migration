@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import * as projectsApi from '../api/projects';
 import type { Project, ProjectStatus } from '../types';
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { formatDate } from '../utils';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useAuth } from '../auth/AuthContext';
 
 const STATUS_BADGE: Record<ProjectStatus, string> = {
   PLANNING: 'badge-draft',
@@ -79,13 +81,36 @@ function NewProjectModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
+  const canDelete = hasRole('ADMIN', 'PLM_MANAGER');
 
   const loadData = () => {
     projectsApi.fetchProjects().then(setProjects).catch(() => toast('Failed to load projects', 'error'));
   };
 
   useEffect(() => { loadData(); }, []);
+
+  const filtered = statusFilter ? projects.filter((p) => p.status === statusFilter) : projects;
+
+  const isDeletable = (status: ProjectStatus) => status === 'PLANNING' || status === 'CANCELLED';
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await projectsApi.deleteProject(deleteTarget.id);
+      toast('Project deleted', 'success');
+      setDeleteTarget(null);
+      loadData();
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : 'Failed to delete project', 'error');
+    }
+    setDeleting(false);
+  };
 
   return (
     <div className="animate-fade-in">
@@ -97,9 +122,20 @@ export function Projects() {
         <button className="btn" onClick={() => setModalOpen(true)}><Plus size={18} /> New Project</button>
       </div>
 
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+        <select className="form-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All Stages</option>
+          <option value="PLANNING">Planning</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="ON_HOLD">On Hold</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+
       <div className="grid grid-cols-3">
-        {projects.map((p) => (
-          <div key={p.id} className="glass-panel" style={{ padding: '1.5rem', cursor: 'pointer' }} onClick={() => navigate(`/projects/${p.id}`)}>
+        {filtered.map((p) => (
+          <div key={p.id} className="glass-panel" style={{ padding: '1.5rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.5rem' }} onClick={() => navigate(`/projects/${p.id}`)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
               <h3>{p.name}</h3>
               <span className={`badge ${STATUS_BADGE[p.status]}`}>{p.status.replace('_', ' ')}</span>
@@ -108,12 +144,30 @@ export function Projects() {
             <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
               Owner: {p.owner || '—'} • Target: {formatDate(p.targetLaunchDate)}
             </p>
+            {canDelete && isDeletable(p.status) && (
+              <button
+                className="btn btn-danger"
+                style={{ alignSelf: 'flex-end', padding: '0.25rem 0.5rem' }}
+                title="Delete project"
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
           </div>
         ))}
-        {projects.length === 0 && <p className="text-muted">No projects yet.</p>}
+        {filtered.length === 0 && <p className="text-muted">No projects found.</p>}
       </div>
 
       <NewProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreated={loadData} />
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        title="Delete project?"
+        message={`This will permanently delete "${deleteTarget?.name}" and all its related data (milestones, linked products). This cannot be undone.`}
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

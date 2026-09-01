@@ -1,5 +1,6 @@
 package fr.formcraft.repo.project.impl;
 
+import fr.formcraft.common.constants.RepoConsts;
 import fr.formcraft.common.exception.EntityNotFoundException;
 import fr.formcraft.common.exception.FormCraftException;
 import fr.formcraft.model.entity.Product;
@@ -7,6 +8,7 @@ import fr.formcraft.model.entity.Project;
 import fr.formcraft.model.entity.ProjectMilestone;
 import fr.formcraft.model.enums.MilestoneStatus;
 import fr.formcraft.model.enums.ProjectStatus;
+import fr.formcraft.repo.audit.AuditService;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.jpa.ProjectMilestoneRepository;
 import fr.formcraft.repo.jpa.ProjectRepository;
@@ -25,14 +27,17 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMilestoneRepository milestoneRepository;
     private final ProductRepository productRepository;
+    private final AuditService auditService;
 
     @Autowired
     public ProjectServiceImpl(ProjectRepository projectRepository,
                                ProjectMilestoneRepository milestoneRepository,
-                               ProductRepository productRepository) {
+                               ProductRepository productRepository,
+                               AuditService auditService) {
         this.projectRepository = projectRepository;
         this.milestoneRepository = milestoneRepository;
         this.productRepository = productRepository;
+        this.auditService = auditService;
     }
 
     @Override
@@ -125,6 +130,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void deleteProject(Long id) {
         Project project = getById(id);
+
+        if (project.getStatus() != ProjectStatus.PLANNING && project.getStatus() != ProjectStatus.CANCELLED) {
+            throw new FormCraftException("Cannot delete project in status " + project.getStatus()
+                    + " — only PLANNING or CANCELLED projects can be deleted");
+        }
+
         projectRepository.delete(project);
+        auditService.logAction(id, "Project", RepoConsts.AUDIT_DELETE, "DELETED name=" + project.getName());
     }
 }

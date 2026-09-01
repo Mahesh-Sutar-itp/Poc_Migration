@@ -1,5 +1,6 @@
 package fr.formcraft.repo.product.impl;
 
+import fr.formcraft.common.constants.RepoConsts;
 import fr.formcraft.common.exception.EntityNotFoundException;
 import fr.formcraft.common.exception.FormCraftException;
 import fr.formcraft.model.entity.CompositionLine;
@@ -126,12 +127,18 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long productId) {
         Product product = getById(productId);
 
-        if (product.getState() == ProductState.VALIDATED) {
-            throw new FormCraftException("Cannot delete a validated product — archive it first");
+        if (product.getState() != ProductState.DRAFT && product.getState() != ProductState.ARCHIVED) {
+            throw new FormCraftException("Cannot delete product in state " + product.getState()
+                    + " — only DRAFT or ARCHIVED products can be deleted");
+        }
+
+        if (compositionLineRepository.existsByIngredientId(productId)) {
+            throw new FormCraftException("Cannot delete product '" + product.getCode()
+                    + "' — it is used as an ingredient in another product's composition");
         }
 
         productRepository.delete(product);
-        auditService.logUpdate(productId, "DELETED code=" + product.getCode());
+        auditService.logAction(productId, "Product", RepoConsts.AUDIT_DELETE, "DELETED code=" + product.getCode());
     }
 
     @Override

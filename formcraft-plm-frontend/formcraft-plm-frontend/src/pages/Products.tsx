@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, Trash2, X } from 'lucide-react';
 import * as productsApi from '../api/products';
 import type { CreateProductRequest } from '../api/products';
-import type { Product, ProductType } from '../types';
+import type { Product, ProductState, ProductType } from '../types';
 import { productStateBadgeClass } from '../utils';
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useAuth } from '../auth/AuthContext';
 
 function NewProductModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onClose: () => void; onCreated: () => void }) {
   const [formData, setFormData] = useState<CreateProductRequest>({
@@ -145,12 +147,17 @@ export function Products() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [stateFilter, setStateFilter] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
+  const canDelete = hasRole('ADMIN', 'PLM_MANAGER');
 
   const loadData = () => {
-    if (search || typeFilter) {
+    if (search || typeFilter || stateFilter) {
       productsApi
-        .searchProducts({ name: search || undefined, type: typeFilter || undefined })
+        .searchProducts({ name: search || undefined, type: typeFilter || undefined, state: stateFilter || undefined })
         .then(setProducts)
         .catch(() => toast('Failed to search products', 'error'));
     } else {
@@ -164,7 +171,23 @@ export function Products() {
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, typeFilter]);
+  }, [search, typeFilter, stateFilter]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await productsApi.deleteProduct(deleteTarget.id);
+      toast('Product deleted', 'success');
+      setDeleteTarget(null);
+      loadData();
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : 'Failed to delete product', 'error');
+    }
+    setDeleting(false);
+  };
+
+  const isDeletable = (state: ProductState) => state === 'DRAFT' || state === 'ARCHIVED';
 
   return (
     <div className="animate-fade-in">
@@ -196,6 +219,13 @@ export function Products() {
           <option value="RAW_MATERIAL">Raw Material</option>
           <option value="PACKAGING">Packaging</option>
         </select>
+        <select className="form-select" value={stateFilter} onChange={(e) => setStateFilter(e.target.value)}>
+          <option value="">All Stages</option>
+          <option value="DRAFT">Draft</option>
+          <option value="IN_VALIDATION">In Validation</option>
+          <option value="VALIDATED">Validated</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-3">
@@ -218,12 +248,30 @@ export function Products() {
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               {p.description || 'No description provided.'}
             </p>
+            {canDelete && isDeletable(p.state) && (
+              <button
+                className="btn btn-danger"
+                style={{ alignSelf: 'flex-end', padding: '0.25rem 0.5rem' }}
+                title="Delete product"
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
           </div>
         ))}
         {products.length === 0 && <p className="text-muted">No products found.</p>}
       </div>
 
       <NewProductModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreated={loadData} />
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        title="Delete product?"
+        message={`This will permanently delete "${deleteTarget?.name}" and all its related data (composition, formulation history, quality checks, etc.). This cannot be undone.`}
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

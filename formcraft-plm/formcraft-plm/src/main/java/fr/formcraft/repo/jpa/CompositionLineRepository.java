@@ -16,4 +16,6 @@ public interface CompositionLineRepository extends JpaRepository<CompositionLine
     List<CompositionLine> findByProductIdWithIngredient(@Param("productId") Long productId);
 
     void deleteByProductId(Long productId);
+
+    boolean existsByIngredientId(Long ingredientId);
 }

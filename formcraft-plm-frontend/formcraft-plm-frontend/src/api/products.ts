@@ -44,6 +44,10 @@ export function updateProduct(id: number, data: Partial<CreateProductRequest>) {
   return api.put<Product>(`/products/${id}`, data);
 }
 
+export function deleteProduct(id: number) {
+  return api.del<void>(`/products/${id}`);
+}
+
 export function fetchComposition(id: number) {
   return api.get<CompositionLine[]>(`/products/${id}/composition`);
 }

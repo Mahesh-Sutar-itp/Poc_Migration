@@ -7,6 +7,8 @@ import type { MilestoneStatus, Product, Project, ProjectStatus } from '../types'
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { formatDate } from '../utils';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useAuth } from '../auth/AuthContext';
 
 function AddMilestoneModal({ isOpen, onClose, projectId, nextGate, onAdded }: { isOpen: boolean; onClose: () => void; projectId: number; nextGate: number; onAdded: () => void }) {
   const [formData, setFormData] = useState({ name: '', gateNumber: nextGate, dueDate: '' });
@@ -117,10 +119,14 @@ export function ProjectDetail() {
   const { id } = useParams();
   const projectId = Number(id);
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
+  const canDelete = hasRole('ADMIN', 'PLM_MANAGER');
 
   const [project, setProject] = useState<Project | null>(null);
   const [isMilestoneModalOpen, setMilestoneModalOpen] = useState(false);
   const [isLinkModalOpen, setLinkModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = () => {
     projectsApi.fetchProject(projectId).then(setProject).catch(() => toast('Failed to load project', 'error'));
@@ -158,6 +164,18 @@ export function ProjectDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await projectsApi.deleteProject(projectId);
+      toast('Project deleted', 'success');
+      navigate('/projects');
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : 'Failed to delete project', 'error');
+      setDeleting(false);
+    }
+  };
+
   if (!project) return <div style={{ padding: '2rem' }}>Loading...</div>;
 
   const nextGate = (project.milestones?.reduce((max, m) => Math.max(max, m.gateNumber), 0) || 0) + 1;
@@ -173,13 +191,20 @@ export function ProjectDetail() {
               Owner: {project.owner || '—'} • Target launch: {formatDate(project.targetLaunchDate)}
             </p>
           </div>
-          <select className="form-select" value={project.status} onChange={(e) => handleStatusChange(e.target.value as ProjectStatus)}>
-            <option value="PLANNING">Planning</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="ON_HOLD">On Hold</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+            <select className="form-select" value={project.status} onChange={(e) => handleStatusChange(e.target.value as ProjectStatus)}>
+              <option value="PLANNING">Planning</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="ON_HOLD">On Hold</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            {canDelete && (project.status === 'PLANNING' || project.status === 'CANCELLED') && (
+              <button className="btn btn-danger" onClick={() => setDeleteConfirmOpen(true)}>
+                <Trash2 size={16} /> Delete
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -237,6 +262,14 @@ export function ProjectDetail() {
 
       <AddMilestoneModal isOpen={isMilestoneModalOpen} onClose={() => setMilestoneModalOpen(false)} projectId={projectId} nextGate={nextGate} onAdded={loadData} />
       <LinkProductModal isOpen={isLinkModalOpen} onClose={() => setLinkModalOpen(false)} projectId={projectId} onLinked={loadData} />
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        title="Delete project?"
+        message={`This will permanently delete "${project.name}" and all its related data (milestones, linked products). This cannot be undone.`}
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </div>
   );
 }

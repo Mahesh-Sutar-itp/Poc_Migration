@@ -34,6 +34,7 @@ import { productStateBadgeClass, formatDateTime } from '../utils';
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 type Tab = 'overview' | 'bom' | 'formulation' | 'quality' | 'specifications' | 'documents' | 'changes' | 'nc' | 'audit';
 
@@ -311,6 +312,8 @@ export function ProductDetail() {
   const [isSpecModalOpen, setSpecModalOpen] = useState(false);
   const [isCRModalOpen, setCRModalOpen] = useState(false);
   const [isNcModalOpen, setNcModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadCore = async () => {
     const [pData, cData] = await Promise.all([productsApi.fetchProduct(productId), productsApi.fetchComposition(productId)]);
@@ -417,6 +420,18 @@ export function ProductDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await productsApi.deleteProduct(productId);
+      toast('Product deleted', 'success');
+      navigate('/products');
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : 'Failed to delete product', 'error');
+      setDeleting(false);
+    }
+  };
+
   if (!product) return <div style={{ padding: '2rem' }}>Loading...</div>;
 
   const chartData = (product.nutrientValues || [])
@@ -462,6 +477,11 @@ export function ProductDetail() {
                 </>
               )}
               {product.state === 'VALIDATED' && <button className="btn btn-secondary" onClick={() => handleWorkflow('archive')}>Archive</button>}
+              {(product.state === 'DRAFT' || product.state === 'ARCHIVED') && (
+                <button className="btn btn-danger" onClick={() => setDeleteConfirmOpen(true)}>
+                  <Trash2 size={16} /> Delete
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -754,6 +774,14 @@ export function ProductDetail() {
       <SpecModal isOpen={isSpecModalOpen} onClose={() => setSpecModalOpen(false)} productId={product.id} onSaved={() => specificationsApi.fetchSpecifications(productId).then(setSpecs)} />
       <ChangeRequestModal isOpen={isCRModalOpen} onClose={() => setCRModalOpen(false)} productId={product.id} onSaved={() => changeRequestsApi.fetchChangeRequestsForProduct(productId).then(setChangeRequests)} />
       <RaiseNcModal isOpen={isNcModalOpen} onClose={() => setNcModalOpen(false)} productId={product.id} onSaved={() => ncApi.fetchNonConformancesForProduct(productId).then(setNonConformances)} />
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        title="Delete product?"
+        message={`This will permanently delete "${product.name}" and all its related data (composition, formulation history, quality checks, etc.). This cannot be undone.`}
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </div>
   );
 }
