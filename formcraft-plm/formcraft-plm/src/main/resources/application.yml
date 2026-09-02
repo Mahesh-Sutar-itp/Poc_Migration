@@ -56,6 +56,8 @@ formcraft:
   jwt:
     secret: ${FORMCRAFT_JWT_SECRET:formcraft-plm-dev-secret-key-please-override-in-production-min-256-bits}
     expiration-ms: ${FORMCRAFT_JWT_EXPIRATION_MS:86400000}
+  cors:
+    allowed-origins: ${FORMCRAFT_CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
 
 logging:
   level:

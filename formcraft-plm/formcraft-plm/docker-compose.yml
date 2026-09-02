@@ -33,6 +33,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: formcraft123
       FORMCRAFT_JWT_SECRET: formcraft-plm-docker-compose-secret-key-min-256-bits-change-me
       FORMCRAFT_JWT_EXPIRATION_MS: 86400000
+      FORMCRAFT_CORS_ORIGINS: ${FORMCRAFT_CORS_ORIGINS:-http://localhost:3000}
     ports:
       - "8080:8080"
     depends_on:
