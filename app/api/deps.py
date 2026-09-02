@@ -36,23 +36,27 @@ def get_current_user(
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def require_roles(*roles: str):
-    """Return a dependency that checks the current user has one of the specified roles."""
-    def _guard(user: CurrentUser) -> User:
+def _make_role_guard(*roles: str):
+    """Create a dependency function that checks the user has one of the specified roles."""
+    def _guard(user: Annotated[User, Depends(get_current_user)]) -> User:
         if user.role not in roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
         return user
-    return Depends(_guard)
+    _guard.__name__ = f"require_{'_'.join(r.lower() for r in roles)}"
+    return _guard
 
 
-def require_admin() -> User:
-    return require_roles("ADMIN")
+_admin_guard = _make_role_guard("ADMIN")
+_admin_or_plm_guard = _make_role_guard("ADMIN", "PLM_MANAGER")
+_admin_or_plm_or_quality_guard = _make_role_guard("ADMIN", "PLM_MANAGER", "QUALITY_MANAGER")
+_admin_or_purchasing_guard = _make_role_guard("ADMIN", "PURCHASING")
+_admin_or_quality_guard = _make_role_guard("ADMIN", "QUALITY_MANAGER")
+_mutating_guard = _make_role_guard("ADMIN", "PLM_MANAGER", "QUALITY_MANAGER", "PURCHASING")
 
-
-# Pre-built dependency annotations for common role combos
-AdminUser = require_roles("ADMIN")
-AdminOrPLM = require_roles("ADMIN", "PLM_MANAGER")
-AdminOrPLMOrQuality = require_roles("ADMIN", "PLM_MANAGER", "QUALITY_MANAGER")
-AdminOrPurchasing = require_roles("ADMIN", "PURCHASING")
-AdminOrQuality = require_roles("ADMIN", "QUALITY_MANAGER")
-MutatingUser = require_roles("ADMIN", "PLM_MANAGER", "QUALITY_MANAGER", "PURCHASING")
+# Use these as Annotated types in route signatures
+AdminUser = Annotated[User, Depends(_admin_guard)]
+AdminOrPLM = Annotated[User, Depends(_admin_or_plm_guard)]
+AdminOrPLMOrQuality = Annotated[User, Depends(_admin_or_plm_or_quality_guard)]
+AdminOrPurchasing = Annotated[User, Depends(_admin_or_purchasing_guard)]
+AdminOrQuality = Annotated[User, Depends(_admin_or_quality_guard)]
+MutatingUser = Annotated[User, Depends(_mutating_guard)]
