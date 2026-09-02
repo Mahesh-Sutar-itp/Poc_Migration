@@ -1,0 +1,8 @@
+import enum
+
+
+class ProductType(str, enum.Enum):
+    FINISHED_PRODUCT = "FINISHED_PRODUCT"
+    SEMI_FINISHED = "SEMI_FINISHED"
+    RAW_MATERIAL = "RAW_MATERIAL"
+    PACKAGING = "PACKAGING"

@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: formcraft
+      POSTGRES_USER: formcraft
+      POSTGRES_PASSWORD: formcraft123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://formcraft:formcraft123@db:5432/formcraft
+      FORMCRAFT_JWT_SECRET: formcraft-plm-dev-secret-key-please-override-in-production-min-256-bits
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

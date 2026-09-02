@@ -1,0 +1,9 @@
+import enum
+
+
+class SpecType(str, enum.Enum):
+    PHYSICAL = "PHYSICAL"
+    CHEMICAL = "CHEMICAL"
+    MICROBIOLOGICAL = "MICROBIOLOGICAL"
+    NUTRITIONAL = "NUTRITIONAL"
+    PACKAGING = "PACKAGING"
