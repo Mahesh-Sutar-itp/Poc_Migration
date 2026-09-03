@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 from app.schemas.base import BaseSchema
@@ -9,7 +9,7 @@ class ProjectMilestoneSchema(BaseSchema):
     name: str
     gateNumber: int
     status: str
-    dueDate: str | None = None
+    dueDate: date | None = None
     completedAt: datetime | None = None
 
 

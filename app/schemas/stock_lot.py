@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 from app.schemas.base import BaseSchema
@@ -24,7 +24,7 @@ class StockLotSchema(BaseSchema):
     lotNumber: str
     quantityOnHand: float
     unit: str | None = None
-    expiryDate: str | None = None
+    expiryDate: date | None = None
     supplier: SupplierSchema | None = None
     receivedAt: datetime
     status: str

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.base import BaseSchema
@@ -8,7 +8,7 @@ class CorrectiveActionSchema(BaseSchema):
     id: int
     description: str
     owner: str | None = None
-    dueDate: str | None = None  # date as string
+    dueDate: date | None = None
     status: str
     createdAt: datetime
     closedAt: datetime | None = None

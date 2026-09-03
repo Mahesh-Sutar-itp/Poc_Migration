@@ -37,9 +37,8 @@ def submit(cr_id: int, db: Annotated[Session, Depends(get_db)], user: MutatingUs
 
 @router.post("/api/change-requests/{cr_id}/decide", response_model_exclude_none=True)
 def decide(cr_id: int, body: DecisionRequest, db: Annotated[Session, Depends(get_db)], user: MutatingUser):
-    approve = body.status.upper() in ("APPROVED", "TRUE", "YES")
     return ChangeRequestSchema.model_validate(
-        change_request_service.decide(db, cr_id, approve, user.username, body.decisionComment), from_attributes=True)
+        change_request_service.decide(db, cr_id, body.approve, user.username, body.comment), from_attributes=True)
 
 
 @router.post("/api/change-requests/{cr_id}/implement", response_model_exclude_none=True)

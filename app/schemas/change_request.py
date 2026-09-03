@@ -32,5 +32,5 @@ class ChangeRequestCreateRequest(BaseSchema):
 
 
 class DecisionRequest(BaseSchema):
-    status: str
-    decisionComment: str | None = None
+    approve: bool
+    comment: str | None = None

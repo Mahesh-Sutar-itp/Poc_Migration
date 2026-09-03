@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.base import BaseSchema
@@ -15,7 +15,7 @@ class ProjectSchema(BaseSchema):
     description: str | None = None
     status: str
     owner: str | None = None
-    targetLaunchDate: str | None = None
+    targetLaunchDate: date | None = None
     createdAt: datetime
     products: list[ProductBase] | None = None
     milestones: list[ProjectMilestoneSchema] | None = None
