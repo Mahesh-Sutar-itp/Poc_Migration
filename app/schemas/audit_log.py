@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class AuditLogSchema(BaseModel):
+class AuditLogSchema(BaseSchema):
     id: int
     entityId: int
     entityType: str
@@ -11,5 +12,3 @@ class AuditLogSchema(BaseModel):
     performedBy: str | None = None
     details: str | None = None
     performedAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)

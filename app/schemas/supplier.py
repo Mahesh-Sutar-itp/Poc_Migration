@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 
-class SupplierSchema(BaseModel):
+class SupplierSchema(BaseSchema):
     id: int
     code: str
     name: str
@@ -15,10 +16,8 @@ class SupplierSchema(BaseModel):
     active: bool
     createdAt: datetime
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class SupplierCreateRequest(BaseModel):
+class SupplierCreateRequest(BaseSchema):
     code: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
     contactName: str | None = None
@@ -28,7 +27,7 @@ class SupplierCreateRequest(BaseModel):
     rating: int | None = None
 
 
-class SupplierUpdateRequest(BaseModel):
+class SupplierUpdateRequest(BaseSchema):
     name: str | None = None
     contactName: str | None = None
     contactEmail: str | None = None

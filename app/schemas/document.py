@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class DocumentSchema(BaseModel):
+class DocumentSchema(BaseSchema):
     """Response schema — excludes content (matches @JsonIgnore on the Java entity)."""
     id: int
     entityType: str
@@ -14,5 +15,3 @@ class DocumentSchema(BaseModel):
     version: int
     uploadedBy: str | None = None
     uploadedAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)

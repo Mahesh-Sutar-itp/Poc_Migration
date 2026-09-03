@@ -3,12 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 from app.schemas.product import ProductBase
 from app.schemas.project_milestone import ProjectMilestoneSchema
 
 
-class ProjectSchema(BaseModel):
+class ProjectSchema(BaseSchema):
     id: int
     name: str
     description: str | None = None
@@ -19,17 +20,15 @@ class ProjectSchema(BaseModel):
     products: list[ProductBase] | None = None
     milestones: list[ProjectMilestoneSchema] | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class ProjectCreateRequest(BaseModel):
+class ProjectCreateRequest(BaseSchema):
     name: str = Field(..., min_length=1)
     description: str | None = None
     owner: str | None = None
     targetLaunchDate: str | None = None
 
 
-class ProjectUpdateRequest(BaseModel):
+class ProjectUpdateRequest(BaseSchema):
     name: str | None = None
     description: str | None = None
     status: str | None = None

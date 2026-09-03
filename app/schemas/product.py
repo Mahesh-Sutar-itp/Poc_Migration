@@ -3,9 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 
-class ProductBase(BaseModel):
+class ProductBase(BaseSchema):
     id: int
     code: str
     name: str
@@ -21,15 +22,13 @@ class ProductBase(BaseModel):
     createdBy: str | None = None
     updatedBy: str | None = None
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class CompositionLineIngredient(ProductBase):
     """Product shown as ingredient — without nested collections (matches @JsonIgnoreProperties)."""
     pass
 
 
-class CompositionLineSchema(BaseModel):
+class CompositionLineSchema(BaseSchema):
     id: int
     ingredient: CompositionLineIngredient
     quantity: float
@@ -37,8 +36,6 @@ class CompositionLineSchema(BaseModel):
     unit: str | None = None
     isAllergen: bool
     position: int
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class ProductSchema(ProductBase):
@@ -49,7 +46,7 @@ class ProductSchema(ProductBase):
     qualityChecks: list["QualityCheckSchema"] | None = None
 
 
-class ProductCreateRequest(BaseModel):
+class ProductCreateRequest(BaseSchema):
     code: str = Field(..., min_length=1, max_length=50)
     name: str = Field(..., min_length=1, max_length=255)
     description: str | None = None
@@ -60,7 +57,7 @@ class ProductCreateRequest(BaseModel):
     allergenFlags: str | None = None
 
 
-class ProductUpdateRequest(BaseModel):
+class ProductUpdateRequest(BaseSchema):
     name: str | None = Field(None, min_length=1, max_length=255)
     description: str | None = None
     unit: str | None = None

@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class NotificationSchema(BaseModel):
+class NotificationSchema(BaseSchema):
     id: int
     title: str
     message: str | None = None
@@ -11,5 +12,3 @@ class NotificationSchema(BaseModel):
     category: str
     read: bool
     createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)

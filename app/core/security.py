@@ -2,23 +2,23 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 ALGORITHM = "HS256"
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return _bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
 
 
 def create_access_token(username: str, role: str, full_name: str | None) -> str:

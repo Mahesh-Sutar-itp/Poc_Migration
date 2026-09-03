@@ -13,7 +13,7 @@ down_revision = "0001"
 branch_labels = None
 depends_on = None
 
-_SQL_DIR = Path(__file__).resolve().parents[3] / "formcraft-plm" / "formcraft-plm" / "src" / "main" / "resources" / "db" / "migration"
+_SQL_DIR = Path("/app/sql")
 
 
 def upgrade() -> None:

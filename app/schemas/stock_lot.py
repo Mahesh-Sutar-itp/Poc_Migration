@@ -3,12 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 from app.schemas.product import ProductBase
 from app.schemas.supplier import SupplierSchema
 
 
-class StockMovementSchema(BaseModel):
+class StockMovementSchema(BaseSchema):
     id: int
     movementType: str
     quantity: float
@@ -16,10 +17,8 @@ class StockMovementSchema(BaseModel):
     performedAt: datetime
     reference: str | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class StockLotSchema(BaseModel):
+class StockLotSchema(BaseSchema):
     id: int
     product: ProductBase
     lotNumber: str
@@ -29,5 +28,3 @@ class StockLotSchema(BaseModel):
     supplier: SupplierSchema | None = None
     receivedAt: datetime
     status: str
-
-    model_config = ConfigDict(from_attributes=True)

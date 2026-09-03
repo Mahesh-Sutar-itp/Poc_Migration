@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class WorkflowTaskSchema(BaseModel):
+class WorkflowTaskSchema(BaseSchema):
     id: int
     productId: int | None = None
     taskName: str
@@ -13,5 +14,3 @@ class WorkflowTaskSchema(BaseModel):
     dueDate: datetime | None = None
     completedAt: datetime | None = None
     createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)

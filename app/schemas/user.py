@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 
-class UserSchema(BaseModel):
+class UserSchema(BaseSchema):
     id: int
     username: str
     fullName: str | None = None
@@ -12,10 +13,8 @@ class UserSchema(BaseModel):
     enabled: bool
     createdAt: datetime
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class UserCreateRequest(BaseModel):
+class UserCreateRequest(BaseSchema):
     username: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=1)
     fullName: str | None = None
@@ -23,7 +22,7 @@ class UserCreateRequest(BaseModel):
     role: str
 
 
-class UserUpdateRequest(BaseModel):
+class UserUpdateRequest(BaseSchema):
     fullName: str | None = None
     email: str | None = None
     role: str | None = None

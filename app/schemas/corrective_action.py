@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 
-class CorrectiveActionSchema(BaseModel):
+class CorrectiveActionSchema(BaseSchema):
     id: int
     description: str
     owner: str | None = None
@@ -12,10 +13,8 @@ class CorrectiveActionSchema(BaseModel):
     createdAt: datetime
     closedAt: datetime | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class CorrectiveActionCreateRequest(BaseModel):
+class CorrectiveActionCreateRequest(BaseSchema):
     description: str = Field(..., min_length=1)
     owner: str | None = None
     dueDate: str | None = None

@@ -3,12 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 from app.schemas.corrective_action import CorrectiveActionSchema
 from app.schemas.product import ProductBase
 
 
-class NonConformanceSchema(BaseModel):
+class NonConformanceSchema(BaseSchema):
     id: int
     product: ProductBase
     title: str
@@ -20,16 +21,14 @@ class NonConformanceSchema(BaseModel):
     closedAt: datetime | None = None
     correctiveActions: list[CorrectiveActionSchema] | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class NonConformanceCreateRequest(BaseModel):
+class NonConformanceCreateRequest(BaseSchema):
     title: str = Field(..., min_length=1)
     description: str | None = None
     severity: str
 
 
-class NonConformanceUpdateRequest(BaseModel):
+class NonConformanceUpdateRequest(BaseSchema):
     title: str | None = None
     description: str | None = None
     severity: str | None = None

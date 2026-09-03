@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 from app.schemas.product import ProductBase
 
 
-class SupplierProductSchema(BaseModel):
+class SupplierProductSchema(BaseSchema):
     id: int
     supplier: "SupplierShort | None" = None
     product: ProductBase | None = None
@@ -17,18 +18,14 @@ class SupplierProductSchema(BaseModel):
     preferred: bool
     createdAt: datetime
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class SupplierShort(BaseModel):
+class SupplierShort(BaseSchema):
     id: int
     code: str
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class SupplierProductCreateRequest(BaseModel):
+class SupplierProductCreateRequest(BaseSchema):
     productId: int
     pricePerKg: float | None = None
     leadTimeDays: int | None = None
