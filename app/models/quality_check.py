@@ -17,6 +17,6 @@ class QualityCheck(Base):
     result: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     checked_by: Mapped[str | None] = mapped_column(String(100))
-    checked_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    checked_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     product: Mapped["Product"] = relationship("Product", back_populates="quality_checks")  # noqa: F821

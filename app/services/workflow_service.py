@@ -74,7 +74,7 @@ def complete_task(db: Session, task_id: int) -> WorkflowTask:
     if not task:
         raise EntityNotFoundException("WorkflowTask", task_id)
     task.status = TaskStatus.COMPLETED.value
-    task.completed_at = datetime.datetime.utcnow()
+    task.completed_at = datetime.datetime.now(datetime.UTC)
     saved = workflow_task_repository.save(db, task)
     db.commit()
     return saved
@@ -88,7 +88,7 @@ def _create_task(db: Session, product: Product, name: str, description: str, ass
     task.description = description
     task.assignee = assignee
     task.status = TaskStatus.PENDING.value
-    task.due_date = datetime.datetime.utcnow() + datetime.timedelta(days=due_days)
+    task.due_date = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=due_days)
     workflow_task_repository.save(db, task)
 
 
@@ -103,7 +103,7 @@ def _complete_pending_tasks(db: Session, product_id: int):
     tasks = workflow_task_repository.find_by_product_id_and_status(db, product_id, TaskStatus.PENDING.value)
     for t in tasks:
         t.status = TaskStatus.COMPLETED.value
-        t.completed_at = datetime.datetime.utcnow()
+        t.completed_at = datetime.datetime.now(datetime.UTC)
     db.flush()
 
 

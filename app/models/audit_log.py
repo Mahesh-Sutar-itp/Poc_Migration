@@ -15,4 +15,4 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(50), nullable=False)
     performed_by: Mapped[str | None] = mapped_column(String(100))
     details: Mapped[str | None] = mapped_column(Text)
-    performed_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    performed_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))

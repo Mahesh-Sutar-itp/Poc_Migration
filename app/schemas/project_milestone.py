@@ -1,17 +1,16 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class ProjectMilestoneSchema(BaseModel):
+class ProjectMilestoneSchema(CamelModel):
     id: int
     name: str
-    gateNumber: int
+    gate_number: int
     status: str
-    dueDate: str | None = None
-    completedAt: datetime | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    due_date: date | None = None
+    completed_at: datetime | None = None
 
 
 class ProjectMilestoneCreateRequest(BaseModel):

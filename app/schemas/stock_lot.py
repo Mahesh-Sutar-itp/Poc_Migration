@@ -1,33 +1,30 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from app.schemas.product import ProductBase
 from app.schemas.supplier import SupplierSchema
+from app.schemas.base import CamelModel
 
 
-class StockMovementSchema(BaseModel):
+class StockMovementSchema(CamelModel):
     id: int
-    movementType: str
+    movement_type: str
     quantity: float
-    performedBy: str | None = None
-    performedAt: datetime
+    performed_by: str | None = None
+    performed_at: datetime
     reference: str | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class StockLotSchema(BaseModel):
+class StockLotSchema(CamelModel):
     id: int
     product: ProductBase
-    lotNumber: str
-    quantityOnHand: float
+    lot_number: str
+    quantity_on_hand: float
     unit: str | None = None
-    expiryDate: str | None = None
+    expiry_date: date | None = None
     supplier: SupplierSchema | None = None
-    receivedAt: datetime
+    received_at: datetime
     status: str
-
-    model_config = ConfigDict(from_attributes=True)

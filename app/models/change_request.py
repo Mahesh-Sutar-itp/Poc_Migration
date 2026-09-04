@@ -19,7 +19,7 @@ class ChangeRequest(Base):
     impact: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="DRAFT")
     requested_by: Mapped[str | None] = mapped_column(String(100))
-    requested_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    requested_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     decided_by: Mapped[str | None] = mapped_column(String(100))
     decided_at: Mapped[datetime.datetime | None] = mapped_column(DateTime)
     decision_comment: Mapped[str | None] = mapped_column(Text)

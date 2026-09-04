@@ -1,20 +1,19 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from app.schemas.base import CamelModel
 
 
-class SpecificationSchema(BaseModel):
+class SpecificationSchema(CamelModel):
     id: int
     parameter: str
-    specType: str
-    minValue: float | None = None
-    maxValue: float | None = None
-    targetValue: float | None = None
+    spec_type: str
+    min_value: float | None = None
+    max_value: float | None = None
+    target_value: float | None = None
     unit: str | None = None
-    createdAt: datetime
-    createdBy: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
+    created_by: str | None = None
 
 
 class SpecificationCreateRequest(BaseModel):

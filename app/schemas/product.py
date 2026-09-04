@@ -2,26 +2,25 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from app.schemas.base import CamelModel
 
 
-class ProductBase(BaseModel):
+class ProductBase(CamelModel):
     id: int
     code: str
     name: str
     description: str | None = None
-    productType: str
+    product_type: str
     state: str
     unit: str | None = None
-    costPerKg: float | None = None
-    formulaExpression: str | None = None
-    allergenFlags: str | None = None
-    createdAt: datetime
-    updatedAt: datetime
-    createdBy: str | None = None
-    updatedBy: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    cost_per_kg: float | None = None
+    formula_expression: str | None = None
+    allergen_flags: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    created_by: str | None = None
+    updated_by: str | None = None
 
 
 class CompositionLineIngredient(ProductBase):
@@ -29,24 +28,22 @@ class CompositionLineIngredient(ProductBase):
     pass
 
 
-class CompositionLineSchema(BaseModel):
+class CompositionLineSchema(CamelModel):
     id: int
     ingredient: CompositionLineIngredient
     quantity: float
     percentage: float | None = None
     unit: str | None = None
-    isAllergen: bool
+    is_allergen: bool
     position: int
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class ProductSchema(ProductBase):
-    compositionLines: list[CompositionLineSchema] | None = None
-    nutrientValues: list["NutrientValueSchema"] | None = None
-    formulationResults: list["FormulationResultSchema"] | None = None
-    workflowTasks: list["WorkflowTaskSchema"] | None = None
-    qualityChecks: list["QualityCheckSchema"] | None = None
+    composition_lines: list[CompositionLineSchema] | None = None
+    nutrient_values: list["NutrientValueSchema"] | None = None
+    formulation_results: list["FormulationResultSchema"] | None = None
+    workflow_tasks: list["WorkflowTaskSchema"] | None = None
+    quality_checks: list["QualityCheckSchema"] | None = None
 
 
 class ProductCreateRequest(BaseModel):

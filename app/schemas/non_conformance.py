@@ -2,25 +2,24 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from app.schemas.corrective_action import CorrectiveActionSchema
 from app.schemas.product import ProductBase
+from app.schemas.base import CamelModel
 
 
-class NonConformanceSchema(BaseModel):
+class NonConformanceSchema(CamelModel):
     id: int
     product: ProductBase
     title: str
     description: str | None = None
     severity: str
     status: str
-    raisedBy: str | None = None
-    raisedAt: datetime
-    closedAt: datetime | None = None
-    correctiveActions: list[CorrectiveActionSchema] | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    raised_by: str | None = None
+    raised_at: datetime
+    closed_at: datetime | None = None
+    corrective_actions: list[CorrectiveActionSchema] | None = None
 
 
 class NonConformanceCreateRequest(BaseModel):

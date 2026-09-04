@@ -5,9 +5,11 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 COPY pyproject.toml .
-RUN uv pip install --system -e ".[dev]"
-
-COPY . .
+COPY app/ app/
+COPY alembic/ alembic/
+COPY alembic.ini .
+COPY tests/ tests/
+RUN uv pip install --system ".[dev]"
 
 EXPOSE 8080
 

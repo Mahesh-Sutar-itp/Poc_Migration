@@ -20,7 +20,7 @@ class NonConformance(Base):
     severity: Mapped[str] = mapped_column(String(20), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="OPEN")
     raised_by: Mapped[str | None] = mapped_column(String(100))
-    raised_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    raised_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     closed_at: Mapped[datetime.datetime | None] = mapped_column(DateTime)
 
     product: Mapped["Product"] = relationship("Product")  # noqa: F821

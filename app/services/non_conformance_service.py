@@ -72,7 +72,7 @@ def _do_close(db: Session, nc: NonConformance) -> NonConformance:
     if open_count > 0:
         raise FormCraftException(f"Cannot close non-conformance: {open_count} corrective action(s) are still open")
     nc.status = NcStatus.CLOSED.value
-    nc.closed_at = datetime.datetime.utcnow()
+    nc.closed_at = datetime.datetime.now(datetime.UTC)
     saved = non_conformance_repository.save(db, nc)
     db.commit()
     return saved
@@ -102,7 +102,7 @@ def close_corrective_action(db: Session, nc_id: int, action_id: int) -> Correcti
     if action.non_conformance_id != nc_id:
         raise FormCraftException(f"Corrective action does not belong to non-conformance {nc_id}")
     action.status = CapaStatus.DONE.value
-    action.closed_at = datetime.datetime.utcnow()
+    action.closed_at = datetime.datetime.now(datetime.UTC)
     saved = corrective_action_repository.save(db, action)
     db.commit()
     return saved

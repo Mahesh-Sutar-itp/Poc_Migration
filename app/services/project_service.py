@@ -85,7 +85,7 @@ def update_milestone_status(db: Session, project_id: int, milestone_id: int, sta
         raise FormCraftException(f"Milestone does not belong to project {project_id}")
     ms.status = status
     if status == MilestoneStatus.DONE.value:
-        ms.completed_at = datetime.datetime.utcnow()
+        ms.completed_at = datetime.datetime.now(datetime.UTC)
     else:
         ms.completed_at = None
     saved = project_milestone_repository.save(db, ms)

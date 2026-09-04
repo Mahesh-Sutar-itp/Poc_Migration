@@ -58,7 +58,7 @@ def decide(db: Session, cr_id: int, approve: bool, decided_by: str | None, comme
     target = ChangeRequestStatus.APPROVED if approve else ChangeRequestStatus.REJECTED
     cr = _transition(db, cr_id, target)
     cr.decided_by = decided_by
-    cr.decided_at = datetime.datetime.utcnow()
+    cr.decided_at = datetime.datetime.now(datetime.UTC)
     cr.decision_comment = comment
     saved = change_request_repository.save(db, cr)
     db.commit()

@@ -1,21 +1,20 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from app.schemas.base import CamelModel
 
 
-class SupplierSchema(BaseModel):
+class SupplierSchema(CamelModel):
     id: int
     code: str
     name: str
-    contactName: str | None = None
-    contactEmail: str | None = None
+    contact_name: str | None = None
+    contact_email: str | None = None
     phone: str | None = None
     address: str | None = None
     rating: int | None = None
     active: bool
-    createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
 
 
 class SupplierCreateRequest(BaseModel):

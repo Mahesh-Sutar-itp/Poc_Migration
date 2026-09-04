@@ -1,18 +1,17 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from app.schemas.base import CamelModel
 
 
-class CorrectiveActionSchema(BaseModel):
+class CorrectiveActionSchema(CamelModel):
     id: int
     description: str
     owner: str | None = None
-    dueDate: str | None = None  # date as string
+    due_date: date | None = None
     status: str
-    createdAt: datetime
-    closedAt: datetime | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
+    closed_at: datetime | None = None
 
 
 class CorrectiveActionCreateRequest(BaseModel):

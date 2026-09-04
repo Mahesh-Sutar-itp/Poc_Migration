@@ -1,12 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class NutrientValueSchema(BaseModel):
+class NutrientValueSchema(CamelModel):
     id: int
-    nutrientType: str
-    valuePer100g: float
+    nutrient_type: str
+    value_per_100g: float
     unit: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)

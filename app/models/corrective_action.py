@@ -17,7 +17,7 @@ class CorrectiveAction(Base):
     owner: Mapped[str | None] = mapped_column(String(100))
     due_date: Mapped[datetime.date | None] = mapped_column(Date)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="OPEN")
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     closed_at: Mapped[datetime.datetime | None] = mapped_column(DateTime)
 
     non_conformance: Mapped["NonConformance"] = relationship("NonConformance", back_populates="corrective_actions")  # noqa: F821

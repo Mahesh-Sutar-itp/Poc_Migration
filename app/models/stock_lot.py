@@ -20,7 +20,7 @@ class StockLot(Base):
     unit: Mapped[str | None] = mapped_column(String(20))
     expiry_date: Mapped[datetime.date | None] = mapped_column(Date)
     supplier_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("suppliers.id", ondelete="SET NULL"))
-    received_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    received_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="ACTIVE")
 
     product: Mapped["Product"] = relationship("Product")  # noqa: F821

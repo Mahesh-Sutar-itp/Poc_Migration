@@ -2,30 +2,27 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from app.schemas.product import ProductBase
+from app.schemas.base import CamelModel
 
 
-class SupplierProductSchema(BaseModel):
+class SupplierProductSchema(CamelModel):
     id: int
     supplier: "SupplierShort | None" = None
     product: ProductBase | None = None
-    pricePerKg: float | None = None
-    leadTimeDays: int | None = None
+    price_per_kg: float | None = None
+    lead_time_days: int | None = None
     moq: float | None = None
     preferred: bool
-    createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
 
 
 class SupplierShort(BaseModel):
     id: int
     code: str
     name: str
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class SupplierProductCreateRequest(BaseModel):

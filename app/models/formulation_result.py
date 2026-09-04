@@ -24,6 +24,6 @@ class FormulationResult(Base):
     total_cost: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     errors: Mapped[str | None] = mapped_column(Text)
     warnings: Mapped[str | None] = mapped_column(Text)
-    formulated_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    formulated_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     product: Mapped["Product"] = relationship("Product", back_populates="formulation_results")  # noqa: F821

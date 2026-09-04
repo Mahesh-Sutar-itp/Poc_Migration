@@ -1,18 +1,17 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class FormulationResultSchema(BaseModel):
+class FormulationResultSchema(CamelModel):
     id: int
-    chainId: str
+    chain_id: str
     status: str
-    computedValues: dict[str, float] | None = None
-    nutriScore: str | None = None
-    ecoScore: str | None = None
-    totalCost: float | None = None
+    computed_values: dict[str, float] | None = None
+    nutri_score: str | None = None
+    eco_score: str | None = None
+    total_cost: float | None = None
     errors: str | None = None
     warnings: str | None = None
-    formulatedAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    formulated_at: datetime

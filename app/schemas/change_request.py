@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from app.schemas.product import ProductBase
+from app.schemas.base import CamelModel
 
 
-class ChangeRequestSchema(BaseModel):
+class ChangeRequestSchema(CamelModel):
     id: int
     product: ProductBase
     title: str
@@ -15,13 +16,11 @@ class ChangeRequestSchema(BaseModel):
     reason: str | None = None
     impact: str | None = None
     status: str
-    requestedBy: str | None = None
-    requestedAt: datetime
-    decidedBy: str | None = None
-    decidedAt: datetime | None = None
-    decisionComment: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    requested_by: str | None = None
+    requested_at: datetime
+    decided_by: str | None = None
+    decided_at: datetime | None = None
+    decision_comment: str | None = None
 
 
 class ChangeRequestCreateRequest(BaseModel):

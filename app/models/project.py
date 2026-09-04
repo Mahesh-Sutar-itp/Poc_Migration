@@ -25,7 +25,7 @@ class Project(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="PLANNING")
     owner: Mapped[str | None] = mapped_column(String(100))
     target_launch_date: Mapped[datetime.date | None] = mapped_column(Date)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     products: Mapped[List["Product"]] = relationship("Product", secondary=project_products)  # noqa: F821
     milestones: Mapped[List["ProjectMilestone"]] = relationship(

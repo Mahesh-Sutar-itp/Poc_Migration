@@ -17,7 +17,7 @@ class StockMovement(Base):
     movement_type: Mapped[str] = mapped_column(String(20), nullable=False)
     quantity: Mapped[Decimal] = mapped_column(Numeric(12, 4), nullable=False)
     performed_by: Mapped[str | None] = mapped_column(String(100))
-    performed_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    performed_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     reference: Mapped[str | None] = mapped_column(String(255))
 
     stock_lot: Mapped["StockLot"] = relationship("StockLot", back_populates="movements")  # noqa: F821

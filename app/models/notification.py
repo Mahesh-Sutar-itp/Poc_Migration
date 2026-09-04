@@ -16,4 +16,4 @@ class Notification(Base):
     link: Mapped[str | None] = mapped_column(String(255))
     category: Mapped[str] = mapped_column(String(30), nullable=False)
     is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))

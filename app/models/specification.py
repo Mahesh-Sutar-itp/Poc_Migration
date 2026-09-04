@@ -20,7 +20,7 @@ class Specification(Base):
     max_value: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     target_value: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     unit: Mapped[str | None] = mapped_column(String(20))
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     created_by: Mapped[str | None] = mapped_column(String(100))
 
     product: Mapped["Product"] = relationship("Product")  # noqa: F821

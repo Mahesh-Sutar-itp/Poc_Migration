@@ -20,7 +20,7 @@ class CompositionLine(Base):
     unit: Mapped[str | None] = mapped_column(String(20))
     is_allergen: Mapped[bool | None] = mapped_column(Boolean, default=False)
     position: Mapped[int | None] = mapped_column(Integer, default=0)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     product: Mapped["Product"] = relationship(  # noqa: F821
         "Product", back_populates="composition_lines", foreign_keys=[product_id],

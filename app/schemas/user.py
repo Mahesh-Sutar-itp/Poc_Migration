@@ -1,18 +1,17 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from app.schemas.base import CamelModel
 
 
-class UserSchema(BaseModel):
+class UserSchema(CamelModel):
     id: int
     username: str
-    fullName: str | None = None
+    full_name: str | None = None
     email: str | None = None
     role: str
     enabled: bool
-    createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
 
 
 class UserCreateRequest(BaseModel):

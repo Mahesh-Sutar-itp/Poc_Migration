@@ -19,6 +19,6 @@ class WorkflowTask(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING")
     due_date: Mapped[datetime.datetime | None] = mapped_column(DateTime)
     completed_at: Mapped[datetime.datetime | None] = mapped_column(DateTime)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     product: Mapped["Product"] = relationship("Product", back_populates="workflow_tasks")  # noqa: F821

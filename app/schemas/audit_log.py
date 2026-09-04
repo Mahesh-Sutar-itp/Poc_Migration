@@ -1,15 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class AuditLogSchema(BaseModel):
+class AuditLogSchema(CamelModel):
     id: int
-    entityId: int
-    entityType: str
+    entity_id: int
+    entity_type: str
     action: str
-    performedBy: str | None = None
+    performed_by: str | None = None
     details: str | None = None
-    performedAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    performed_at: datetime

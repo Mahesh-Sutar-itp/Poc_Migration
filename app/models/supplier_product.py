@@ -19,7 +19,7 @@ class SupplierProduct(Base):
     lead_time_days: Mapped[int | None] = mapped_column(Integer)
     moq: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     preferred: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     supplier: Mapped["Supplier"] = relationship("Supplier", back_populates="supplier_products")  # noqa: F821
     product: Mapped["Product"] = relationship("Product")  # noqa: F821

@@ -1,17 +1,16 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class WorkflowTaskSchema(BaseModel):
+class WorkflowTaskSchema(CamelModel):
     id: int
-    productId: int | None = None
-    taskName: str
+    product_id: int | None = None
+    task_name: str
     description: str | None = None
     assignee: str | None = None
     status: str
-    dueDate: datetime | None = None
-    completedAt: datetime | None = None
-    createdAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    due_date: datetime | None = None
+    completed_at: datetime | None = None
+    created_at: datetime

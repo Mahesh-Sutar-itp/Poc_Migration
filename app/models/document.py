@@ -18,4 +18,4 @@ class Document(Base):
     content: Mapped[bytes | None] = mapped_column(LargeBinary)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     uploaded_by: Mapped[str | None] = mapped_column(String(100))
-    uploaded_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    uploaded_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))

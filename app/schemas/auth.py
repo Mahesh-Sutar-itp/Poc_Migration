@@ -6,8 +6,14 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1)
 
 
+class UserDto(BaseModel):
+    id: int
+    username: str
+    fullName: str | None = None
+    email: str | None = None
+    role: str
+
+
 class LoginResponse(BaseModel):
     token: str
-    username: str
-    role: str
-    fullName: str | None = None
+    user: UserDto

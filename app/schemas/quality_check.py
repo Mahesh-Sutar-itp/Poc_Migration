@@ -1,14 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from app.schemas.base import CamelModel
 
 
-class QualityCheckSchema(BaseModel):
+class QualityCheckSchema(CamelModel):
     id: int
-    checkType: str
+    check_type: str
     result: str | None = None
     status: str
-    checkedBy: str | None = None
-    checkedAt: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+    checked_by: str | None = None
+    checked_at: datetime

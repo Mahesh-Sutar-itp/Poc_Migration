@@ -21,7 +21,7 @@ class Supplier(Base):
     address: Mapped[str | None] = mapped_column(Text)
     rating: Mapped[int | None] = mapped_column(Integer)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
 
     supplier_products: Mapped[List["SupplierProduct"]] = relationship(
         "SupplierProduct", back_populates="supplier", cascade="all, delete-orphan",

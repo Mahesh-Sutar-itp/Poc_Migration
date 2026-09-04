@@ -1,23 +1,21 @@
+
 # Build output
-target/
-dist/
-build/
-
 # Dependencies
-node_modules/
-
-# Logs
-*.log
-
 # Environment
+# IDE
+# Logs
+# OS
+*.iml
+*.log
+*.pyc
+.DS_Store
 .env
 .env.local
-
-# IDE
 .idea/
 .vscode/
-*.iml
-
-# OS
-.DS_Store
 Thumbs.db
+__pycache__/
+build/
+dist/
+node_modules/
+target/
