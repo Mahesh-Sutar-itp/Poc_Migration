@@ -1,0 +1,15 @@
+{
+  "name": "formcraft-api-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright API test suite exercising the FormCraft PLM Java and Python backends to measure migration completeness",
+  "scripts": {
+    "test": "playwright test",
+    "compare": "node scripts/compare-results.js",
+    "parity": "node scripts/compare-parity.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0"
+  }
+}
