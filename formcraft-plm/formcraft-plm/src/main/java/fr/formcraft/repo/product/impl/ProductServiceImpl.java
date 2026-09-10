@@ -11,6 +11,7 @@ import fr.formcraft.repo.audit.AuditService;
 import fr.formcraft.repo.jpa.CompositionLineRepository;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.product.ProductService;
+import fr.formcraft.sdk.attributes.CustomAttributeService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +36,17 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CompositionLineRepository compositionLineRepository;
     private final AuditService auditService;
+    private final CustomAttributeService customAttributeService;
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
                                CompositionLineRepository compositionLineRepository,
-                               AuditService auditService) {
+                               AuditService auditService,
+                               CustomAttributeService customAttributeService) {
         this.productRepository = productRepository;
         this.compositionLineRepository = compositionLineRepository;
         this.auditService = auditService;
+        this.customAttributeService = customAttributeService;
     }
 
     @Override
@@ -50,6 +54,9 @@ public class ProductServiceImpl implements ProductService {
     public Product createProduct(Product product) {
         if (productRepository.existsByCode(product.getCode())) {
             throw new FormCraftException("Product with code '" + product.getCode() + "' already exists");
+        }
+        if (customAttributeService != null) {
+            customAttributeService.validate(product);
         }
 
         product.setState(ProductState.DRAFT);
@@ -79,6 +86,12 @@ public class ProductServiceImpl implements ProductService {
         existing.setCostPerKg(updated.getCostPerKg());
         existing.setFormulaExpression(updated.getFormulaExpression());
         existing.setAllergenFlags(updated.getAllergenFlags());
+        if (updated.getCustomAttributes() != null) {
+            existing.setCustomAttributes(updated.getCustomAttributes());
+        }
+        if (customAttributeService != null) {
+            customAttributeService.validate(existing);
+        }
 
         Product saved = productRepository.save(existing);
         auditService.logUpdate(productId, "name=" + updated.getName());

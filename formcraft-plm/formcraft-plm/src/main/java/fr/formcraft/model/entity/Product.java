@@ -6,12 +6,16 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Core product entity — represents any node in the PLM system:
@@ -66,6 +70,14 @@ public class Product {
      */
     @Column(name = "allergen_flags")
     private String allergenFlags;
+
+    /**
+     * Customization Gate 2 (BMIDE-style): client-defined attributes not known to core.
+     * Keys are validated at save time against {@link CustomAttributeDefinition}.
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "custom_attributes")
+    private Map<String, Object> customAttributes = new HashMap<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -63,6 +63,10 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health", "/actuator/info", "/auth/login").permitAll()
                 // User administration is ADMIN-only for every HTTP method
                 .requestMatchers("/users/**").hasRole(ADMIN)
+                // Customization gates are ADMIN-only for every HTTP method: Gate 2 (custom
+                // attribute definitions) is config, Gate 1's registry (extensions) is read-only
+                // visibility into deployed code-level handlers — both are platform-admin concerns
+                .requestMatchers("/attribute-definitions/**", "/extensions/**").hasRole(ADMIN)
                 // Module-specific write restrictions (checked before the generic GET/write rules below)
                 .requestMatchers(HttpMethod.POST, "/products/*/workflow/**").hasAnyRole(ADMIN, PLM_MANAGER)
                 .requestMatchers(HttpMethod.POST, "/change-requests/*/decide").hasAnyRole(ADMIN, PLM_MANAGER)

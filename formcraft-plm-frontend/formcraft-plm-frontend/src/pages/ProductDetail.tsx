@@ -5,6 +5,7 @@ import {
   Beaker,
   CheckCircle,
   Package,
+  Pencil,
   Plus,
   X,
   BarChart3,
@@ -19,10 +20,13 @@ import * as specificationsApi from '../api/specifications';
 import * as documentsApi from '../api/documents';
 import * as changeRequestsApi from '../api/changeRequests';
 import * as ncApi from '../api/nonConformances';
+import * as attributeDefinitionsApi from '../api/attributeDefinitions';
+import type { CreateProductRequest } from '../api/products';
 import type {
   AuditLog,
   ChangeRequest,
   CompositionLine,
+  CustomAttributeDefinition,
   FCDocument,
   NonConformance,
   Product,
@@ -35,6 +39,127 @@ import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { CustomAttributeFields, missingRequiredAttributes } from '../components/CustomAttributeFields';
+
+function toFormData(product: Product): CreateProductRequest {
+  return {
+    code: product.code,
+    name: product.name,
+    description: product.description || '',
+    productType: product.productType,
+    unit: product.unit || '',
+    costPerKg: product.costPerKg,
+    formulaExpression: product.formulaExpression || '',
+    allergenFlags: product.allergenFlags || '',
+    customAttributes: product.customAttributes || {},
+  };
+}
+
+function EditProductModal({ isOpen, onClose, product, onSaved }: { isOpen: boolean; onClose: () => void; product: Product; onSaved: () => void }) {
+  const [formData, setFormData] = useState<CreateProductRequest>(() => toFormData(product));
+  const [definitions, setDefinitions] = useState<CustomAttributeDefinition[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(toFormData(product));
+      attributeDefinitionsApi.fetchAttributeDefinitions().then(setDefinitions).catch(() => {});
+    }
+  }, [isOpen, product]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const missing = missingRequiredAttributes(definitions, formData.productType, formData.customAttributes || {});
+    if (missing.length > 0) {
+      toast(`Missing required attribute(s): ${missing.join(', ')}`, 'error');
+      return;
+    }
+    setLoading(true);
+    try {
+      await productsApi.updateProduct(product.id, formData);
+      toast('Product updated', 'success');
+      onSaved();
+      onClose();
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : 'Failed to update product', 'error');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="glass-panel modal-content animate-fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <h2>Edit Product</h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X /></button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>
+            {formData.code} &bull; {formData.productType.replace('_', ' ')} <span style={{ opacity: 0.7 }}>(fixed at creation)</span>
+          </p>
+          <div className="form-group">
+            <label className="form-label">Name</label>
+            <input className="form-input" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Unit</label>
+            <input className="form-input" value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} placeholder="kg" />
+          </div>
+          {formData.productType === 'RAW_MATERIAL' && (
+            <div className="form-group">
+              <label className="form-label">Cost per kg</label>
+              <input
+                type="number"
+                step="0.01"
+                className="form-input"
+                value={formData.costPerKg ?? ''}
+                onChange={(e) => setFormData({ ...formData, costPerKg: e.target.value ? Number(e.target.value) : undefined })}
+              />
+            </div>
+          )}
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <textarea className="form-input" rows={2} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+          </div>
+          {formData.productType !== 'RAW_MATERIAL' && (
+            <>
+              <div className="form-group">
+                <label className="form-label">Formula Expression (SPEL)</label>
+                <input
+                  className="form-input"
+                  value={formData.formulaExpression}
+                  onChange={(e) => setFormData({ ...formData, formulaExpression: e.target.value })}
+                  placeholder="e.g. protein * 4 + fat * 9 + carbohydrates * 4"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Allergen Flags (comma-separated)</label>
+                <input
+                  className="form-input"
+                  value={formData.allergenFlags || ''}
+                  onChange={(e) => setFormData({ ...formData, allergenFlags: e.target.value })}
+                  placeholder="e.g. GLUTEN,EGGS,MILK"
+                />
+              </div>
+            </>
+          )}
+          <CustomAttributeFields
+            definitions={definitions}
+            productType={formData.productType}
+            values={formData.customAttributes || {}}
+            onChange={(customAttributes) => setFormData({ ...formData, customAttributes })}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-success" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 type Tab = 'overview' | 'bom' | 'formulation' | 'quality' | 'specifications' | 'documents' | 'changes' | 'nc' | 'audit';
 
@@ -312,6 +437,7 @@ export function ProductDetail() {
   const [isSpecModalOpen, setSpecModalOpen] = useState(false);
   const [isCRModalOpen, setCRModalOpen] = useState(false);
   const [isNcModalOpen, setNcModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -441,6 +567,7 @@ export function ProductDetail() {
   const latestFormulation = product.formulationResults && product.formulationResults.length > 0 ? product.formulationResults[0] : null;
   const canManageWorkflow = hasRole('ADMIN', 'PLM_MANAGER');
   const canManageQuality = hasRole('ADMIN', 'QUALITY_MANAGER');
+  const canEditProduct = hasRole('ADMIN', 'PLM_MANAGER', 'QUALITY_MANAGER', 'PURCHASING') && product.state !== 'VALIDATED';
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -460,6 +587,11 @@ export function ProductDetail() {
         <div>
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Package size={28} /> {product.name}
+            {canEditProduct && (
+              <button className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem' }} title="Edit product" onClick={() => setEditModalOpen(true)}>
+                <Pencil size={14} />
+              </button>
+            )}
           </h1>
           <p className="text-muted" style={{ marginTop: '0.5rem' }}>{product.code} • {product.productType.replace('_', ' ')}</p>
         </div>
@@ -510,6 +642,16 @@ export function ProductDetail() {
             <p><strong>Allergens:</strong> {product.allergenFlags || 'None declared'}</p>
             <p><strong>Created:</strong> {formatDateTime(product.createdAt)}</p>
             <p><strong>Updated:</strong> {formatDateTime(product.updatedAt)}</p>
+            {product.customAttributes && Object.keys(product.customAttributes).length > 0 && (
+              <>
+                <p style={{ marginTop: '1rem', marginBottom: '0.25rem' }}><strong>Custom Attributes</strong></p>
+                {Object.entries(product.customAttributes).map(([key, value]) => (
+                  <p key={key} style={{ fontSize: '0.9rem' }}>
+                    <span className="text-muted">{key}:</span> {String(value)}
+                  </p>
+                ))}
+              </>
+            )}
           </div>
           {product.productType === 'RAW_MATERIAL' && (
             <div className="glass-panel" style={{ padding: '1.5rem' }}>
@@ -774,6 +916,7 @@ export function ProductDetail() {
       <SpecModal isOpen={isSpecModalOpen} onClose={() => setSpecModalOpen(false)} productId={product.id} onSaved={() => specificationsApi.fetchSpecifications(productId).then(setSpecs)} />
       <ChangeRequestModal isOpen={isCRModalOpen} onClose={() => setCRModalOpen(false)} productId={product.id} onSaved={() => changeRequestsApi.fetchChangeRequestsForProduct(productId).then(setChangeRequests)} />
       <RaiseNcModal isOpen={isNcModalOpen} onClose={() => setNcModalOpen(false)} productId={product.id} onSaved={() => ncApi.fetchNonConformancesForProduct(productId).then(setNonConformances)} />
+      <EditProductModal isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} product={product} onSaved={loadCore} />
       <ConfirmDialog
         isOpen={isDeleteConfirmOpen}
         title="Delete product?"

@@ -12,6 +12,8 @@ import fr.formcraft.repo.changerequest.ChangeRequestService;
 import fr.formcraft.repo.jpa.ChangeRequestRepository;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.notification.NotificationService;
+import fr.formcraft.sdk.workflow.ChangeRequestTransitionContext;
+import fr.formcraft.sdk.workflow.ChangeRequestTransitionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +30,19 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private final ProductRepository productRepository;
     private final AuditService auditService;
     private final NotificationService notificationService;
+    private final List<ChangeRequestTransitionHandler> transitionHandlers;
 
     @Autowired
     public ChangeRequestServiceImpl(ChangeRequestRepository changeRequestRepository,
                                      ProductRepository productRepository,
                                      AuditService auditService,
-                                     NotificationService notificationService) {
+                                     NotificationService notificationService,
+                                     List<ChangeRequestTransitionHandler> transitionHandlers) {
         this.changeRequestRepository = changeRequestRepository;
         this.productRepository = productRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
+        this.transitionHandlers = transitionHandlers != null ? transitionHandlers : List.of();
     }
 
     @Override
@@ -102,11 +107,12 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     @Override
     @Transactional
     public ChangeRequest decide(Long id, boolean approve, String decidedBy, String comment) {
-        ChangeRequest cr = transition(id, approve ? ChangeRequestStatus.APPROVED : ChangeRequestStatus.REJECTED);
+        ChangeRequest cr = getById(id);
         cr.setDecidedBy(decidedBy);
         cr.setDecidedAt(LocalDateTime.now());
         cr.setDecisionComment(comment);
-        ChangeRequest saved = changeRequestRepository.save(cr);
+
+        ChangeRequest saved = transition(cr, approve ? ChangeRequestStatus.APPROVED : ChangeRequestStatus.REJECTED);
 
         auditService.logAction(saved.getId(), ENTITY_TYPE, approve ? "APPROVE" : "REJECT",
                 "by=" + decidedBy + " comment=" + comment);
@@ -130,11 +136,27 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     }
 
     private ChangeRequest transition(Long id, ChangeRequestStatus target) {
-        ChangeRequest cr = getById(id);
-        if (!cr.getStatus().canTransitionTo(target)) {
-            throw new FormCraftException("Invalid change request transition: " + cr.getStatus() + " -> " + target);
+        return transition(getById(id), target);
+    }
+
+    private ChangeRequest transition(ChangeRequest cr, ChangeRequestStatus target) {
+        ChangeRequestStatus from = cr.getStatus();
+        if (!from.canTransitionTo(target)) {
+            throw new FormCraftException("Invalid change request transition: " + from + " -> " + target);
         }
+
+        ChangeRequestTransitionContext context = new ChangeRequestTransitionContext(cr, from, target);
+        for (ChangeRequestTransitionHandler handler : transitionHandlers) {
+            handler.beforeTransition(context);
+        }
+
         cr.setStatus(target);
-        return changeRequestRepository.save(cr);
+        ChangeRequest saved = changeRequestRepository.save(cr);
+
+        for (ChangeRequestTransitionHandler handler : transitionHandlers) {
+            handler.afterTransition(context);
+        }
+
+        return saved;
     }
 }

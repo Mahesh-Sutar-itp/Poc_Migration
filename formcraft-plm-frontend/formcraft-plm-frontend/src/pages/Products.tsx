@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Trash2, X } from 'lucide-react';
 import * as productsApi from '../api/products';
+import * as attributeDefinitionsApi from '../api/attributeDefinitions';
 import type { CreateProductRequest } from '../api/products';
-import type { Product, ProductState, ProductType } from '../types';
+import type { CustomAttributeDefinition, Product, ProductState, ProductType } from '../types';
 import { productStateBadgeClass } from '../utils';
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useAuth } from '../auth/AuthContext';
+import { CustomAttributeFields, missingRequiredAttributes } from '../components/CustomAttributeFields';
 
 function NewProductModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onClose: () => void; onCreated: () => void }) {
   const [formData, setFormData] = useState<CreateProductRequest>({
@@ -18,13 +20,26 @@ function NewProductModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
     productType: 'FINISHED_PRODUCT',
     unit: 'kg',
     formulaExpression: '',
+    customAttributes: {},
   });
+  const [definitions, setDefinitions] = useState<CustomAttributeDefinition[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      attributeDefinitionsApi.fetchAttributeDefinitions().then(setDefinitions).catch(() => {});
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const missing = missingRequiredAttributes(definitions, formData.productType, formData.customAttributes || {});
+    if (missing.length > 0) {
+      toast(`Missing required attribute(s): ${missing.join(', ')}`, 'error');
+      return;
+    }
     setLoading(true);
     try {
       await productsApi.createProduct(formData);
@@ -132,6 +147,12 @@ function NewProductModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
               </div>
             </>
           )}
+          <CustomAttributeFields
+            definitions={definitions}
+            productType={formData.productType}
+            values={formData.customAttributes || {}}
+            onChange={(customAttributes) => setFormData({ ...formData, customAttributes })}
+          />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-success" disabled={loading}>{loading ? 'Saving...' : 'Create'}</button>

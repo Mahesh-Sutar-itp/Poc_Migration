@@ -87,6 +87,9 @@ public class ProductController {
         }
         product.setFormulaExpression(request.formulaExpression());
         product.setAllergenFlags(request.allergenFlags());
+        if (request.customAttributes() != null) {
+            product.setCustomAttributes(request.customAttributes());
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(product));
     }
@@ -103,6 +106,7 @@ public class ProductController {
         }
         updated.setFormulaExpression(request.formulaExpression());
         updated.setAllergenFlags(request.allergenFlags());
+        updated.setCustomAttributes(request.customAttributes());
 
         return ResponseEntity.ok(productService.updateProduct(id, updated));
     }
@@ -157,7 +161,8 @@ public class ProductController {
             String unit,
             Double costPerKg,
             String formulaExpression,
-            String allergenFlags
+            String allergenFlags,
+            Map<String, Object> customAttributes
     ) {}
 
     public record AddCompositionRequest(

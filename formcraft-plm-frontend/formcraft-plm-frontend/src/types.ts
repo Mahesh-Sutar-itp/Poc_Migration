@@ -85,6 +85,7 @@ export interface Product {
   costPerKg?: number;
   formulaExpression?: string;
   allergenFlags?: string;
+  customAttributes?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
@@ -265,4 +266,24 @@ export interface Page<T> {
   totalPages: number;
   number: number;
   size: number;
+}
+
+// ── Customization gates ─────────────────────────────────────────────────────
+
+export type CustomAttributeDataType = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATE';
+
+export interface CustomAttributeDefinition {
+  id: number;
+  attributeKey: string;
+  label: string;
+  dataType: CustomAttributeDataType;
+  required: boolean;
+  appliesToProductType?: ProductType;
+  validationRegex?: string;
+  createdAt: string;
+}
+
+export interface ExtensionInfo {
+  className: string;
+  packageName: string;
 }
