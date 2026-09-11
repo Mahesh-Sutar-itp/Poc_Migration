@@ -9,4 +9,6 @@ import java.util.List;
 public interface EventActionRuleRepository extends JpaRepository<EventActionRule, Long> {
 
     List<EventActionRule> findByEventTypeAndEnabledTrue(EventType eventType);
+
+    List<EventActionRule> findAllByOrderByIdAsc();
 }

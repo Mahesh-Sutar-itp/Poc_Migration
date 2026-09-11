@@ -29,7 +29,7 @@ public class EventActionRuleServiceImpl implements EventActionRuleService {
     @Override
     @Transactional(readOnly = true)
     public List<EventActionRule> listRules() {
-        return repository.findAll();
+        return repository.findAllByOrderByIdAsc();
     }
 
     @Override

@@ -27,7 +27,7 @@ public class CustomAttributeServiceImpl implements CustomAttributeService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomAttributeDefinition> listDefinitions() {
-        return definitionRepository.findAll();
+        return definitionRepository.findAllByOrderByIdAsc();
     }
 
     @Override

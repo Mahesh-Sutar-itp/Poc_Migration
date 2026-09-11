@@ -43,7 +43,7 @@ public class ReportTemplateServiceImpl implements ReportTemplateService {
     @Override
     @Transactional(readOnly = true)
     public List<ReportTemplate> listTemplates() {
-        return repository.findAll();
+        return repository.findAllByOrderByIdAsc();
     }
 
     @Override

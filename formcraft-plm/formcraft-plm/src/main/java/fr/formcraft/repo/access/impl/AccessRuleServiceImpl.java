@@ -24,7 +24,7 @@ public class AccessRuleServiceImpl implements AccessRuleService {
     @Override
     @Transactional(readOnly = true)
     public List<AccessRule> listRules() {
-        return accessRuleRepository.findAll();
+        return accessRuleRepository.findAllByOrderByIdAsc();
     }
 
     @Override
