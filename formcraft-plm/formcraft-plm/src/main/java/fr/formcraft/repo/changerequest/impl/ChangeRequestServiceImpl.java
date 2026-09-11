@@ -5,16 +5,17 @@ import fr.formcraft.common.exception.FormCraftException;
 import fr.formcraft.model.entity.ChangeRequest;
 import fr.formcraft.model.entity.Product;
 import fr.formcraft.model.enums.ChangeRequestStatus;
-import fr.formcraft.model.enums.NotificationCategory;
-import fr.formcraft.model.enums.UserRole;
+import fr.formcraft.model.enums.EventType;
 import fr.formcraft.repo.audit.AuditService;
 import fr.formcraft.repo.changerequest.ChangeRequestService;
 import fr.formcraft.repo.jpa.ChangeRequestRepository;
 import fr.formcraft.repo.jpa.ProductRepository;
-import fr.formcraft.repo.notification.NotificationService;
+import fr.formcraft.sdk.events.EventActionRuleService;
+import fr.formcraft.sdk.events.EventContext;
 import fr.formcraft.sdk.workflow.ChangeRequestTransitionContext;
 import fr.formcraft.sdk.workflow.ChangeRequestTransitionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,19 +30,19 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private final ChangeRequestRepository changeRequestRepository;
     private final ProductRepository productRepository;
     private final AuditService auditService;
-    private final NotificationService notificationService;
+    private final EventActionRuleService eventActionRuleService;
     private final List<ChangeRequestTransitionHandler> transitionHandlers;
 
     @Autowired
     public ChangeRequestServiceImpl(ChangeRequestRepository changeRequestRepository,
                                      ProductRepository productRepository,
                                      AuditService auditService,
-                                     NotificationService notificationService,
+                                     EventActionRuleService eventActionRuleService,
                                      List<ChangeRequestTransitionHandler> transitionHandlers) {
         this.changeRequestRepository = changeRequestRepository;
         this.productRepository = productRepository;
         this.auditService = auditService;
-        this.notificationService = notificationService;
+        this.eventActionRuleService = eventActionRuleService;
         this.transitionHandlers = transitionHandlers != null ? transitionHandlers : List.of();
     }
 
@@ -91,9 +92,8 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         ChangeRequest cr = transition(id, ChangeRequestStatus.SUBMITTED);
         cr = transition(cr.getId(), ChangeRequestStatus.UNDER_REVIEW);
 
-        notificationService.notifyRole(UserRole.PLM_MANAGER, "Change request awaiting review",
-                "\"" + cr.getTitle() + "\" is ready for your review.",
-                "/change-requests/" + cr.getId(), NotificationCategory.CHANGE_REQUEST);
+        eventActionRuleService.fire(EventType.CHANGE_REQUEST_SUBMITTED,
+                new EventContext(cr.getProduct(), cr.getTitle(), null, "/change-requests/" + cr.getId(), null));
 
         return cr;
     }
@@ -106,6 +106,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(null, 'CHANGE_REQUEST_DECIDE')")
     public ChangeRequest decide(Long id, boolean approve, String decidedBy, String comment) {
         ChangeRequest cr = getById(id);
         cr.setDecidedBy(decidedBy);
@@ -117,12 +118,9 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         auditService.logAction(saved.getId(), ENTITY_TYPE, approve ? "APPROVE" : "REJECT",
                 "by=" + decidedBy + " comment=" + comment);
 
-        if (saved.getRequestedBy() != null) {
-            notificationService.notifyUser(saved.getRequestedBy(),
-                    "Change request " + (approve ? "approved" : "rejected"),
-                    "\"" + saved.getTitle() + "\" was " + (approve ? "approved" : "rejected") + ".",
-                    "/change-requests/" + saved.getId(), NotificationCategory.CHANGE_REQUEST);
-        }
+        eventActionRuleService.fire(approve ? EventType.CHANGE_REQUEST_APPROVED : EventType.CHANGE_REQUEST_REJECTED,
+                new EventContext(saved.getProduct(), saved.getTitle(), null,
+                        "/change-requests/" + saved.getId(), saved.getRequestedBy()));
 
         return saved;
     }

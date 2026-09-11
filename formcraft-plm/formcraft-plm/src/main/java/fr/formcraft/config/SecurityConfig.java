@@ -1,11 +1,14 @@
 package fr.formcraft.config;
 
+import fr.formcraft.security.AccessRulePermissionEvaluator;
 import fr.formcraft.security.AppUserDetailsService;
 import fr.formcraft.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -65,8 +68,10 @@ public class SecurityConfig {
                 .requestMatchers("/users/**").hasRole(ADMIN)
                 // Customization gates are ADMIN-only for every HTTP method: Gate 2 (custom
                 // attribute definitions) is config, Gate 1's registry (extensions) is read-only
-                // visibility into deployed code-level handlers — both are platform-admin concerns
-                .requestMatchers("/attribute-definitions/**", "/extensions/**").hasRole(ADMIN)
+                // visibility into deployed code-level handlers, Gate 3 (event-action rules) and
+                // Gate 4 (access rules) are config — all are platform-admin concerns
+                .requestMatchers("/attribute-definitions/**", "/extensions/**",
+                        "/event-action-rules/**", "/access-rules/**", "/report-templates/**").hasRole(ADMIN)
                 // Module-specific write restrictions (checked before the generic GET/write rules below)
                 .requestMatchers(HttpMethod.POST, "/products/*/workflow/**").hasAnyRole(ADMIN, PLM_MANAGER)
                 .requestMatchers(HttpMethod.POST, "/change-requests/*/decide").hasAnyRole(ADMIN, PLM_MANAGER)
@@ -120,5 +125,16 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Wires Customization Gate 4's {@link AccessRulePermissionEvaluator} into the
+     * {@code hasPermission(...)} SpEL function usable from {@code @PreAuthorize}.
+     */
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler(AccessRulePermissionEvaluator evaluator) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setPermissionEvaluator(evaluator);
+        return handler;
     }
 }

@@ -6,15 +6,15 @@ import fr.formcraft.model.entity.Product;
 import fr.formcraft.model.entity.StockLot;
 import fr.formcraft.model.entity.StockMovement;
 import fr.formcraft.model.entity.Supplier;
-import fr.formcraft.model.enums.NotificationCategory;
+import fr.formcraft.model.enums.EventType;
 import fr.formcraft.model.enums.StockMovementType;
-import fr.formcraft.model.enums.UserRole;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.jpa.StockLotRepository;
 import fr.formcraft.repo.jpa.StockMovementRepository;
 import fr.formcraft.repo.jpa.SupplierRepository;
 import fr.formcraft.repo.inventory.InventoryService;
-import fr.formcraft.repo.notification.NotificationService;
+import fr.formcraft.sdk.events.EventActionRuleService;
+import fr.formcraft.sdk.events.EventContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,19 +32,19 @@ public class InventoryServiceImpl implements InventoryService {
     private final StockMovementRepository stockMovementRepository;
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
-    private final NotificationService notificationService;
+    private final EventActionRuleService eventActionRuleService;
 
     @Autowired
     public InventoryServiceImpl(StockLotRepository stockLotRepository,
                                  StockMovementRepository stockMovementRepository,
                                  ProductRepository productRepository,
                                  SupplierRepository supplierRepository,
-                                 NotificationService notificationService) {
+                                 EventActionRuleService eventActionRuleService) {
         this.stockLotRepository = stockLotRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.productRepository = productRepository;
         this.supplierRepository = supplierRepository;
-        this.notificationService = notificationService;
+        this.eventActionRuleService = eventActionRuleService;
     }
 
     @Override
@@ -116,10 +116,10 @@ public class InventoryServiceImpl implements InventoryService {
         StockMovement movement = recordMovement(lot, StockMovementType.CONSUME, quantity, performedBy, reference);
 
         if (lot.getQuantityOnHand().compareTo(DEFAULT_LOW_STOCK_THRESHOLD) < 0) {
-            notificationService.notifyRole(UserRole.PURCHASING, "Low stock alert",
-                    lot.getProduct().getName() + " (lot " + lot.getLotNumber() + ") is low: "
-                            + lot.getQuantityOnHand() + " " + lot.getUnit() + " remaining.",
-                    "/inventory", NotificationCategory.INVENTORY);
+            eventActionRuleService.fire(EventType.INVENTORY_LOW_STOCK,
+                    new EventContext(lot.getProduct(), lot.getProduct().getName(),
+                            lot.getQuantityOnHand() + " " + lot.getUnit() + " remaining (lot " + lot.getLotNumber() + ")",
+                            "/inventory", performedBy));
         }
 
         return movement;

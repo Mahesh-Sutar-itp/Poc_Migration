@@ -7,17 +7,18 @@ import fr.formcraft.model.entity.NonConformance;
 import fr.formcraft.model.entity.Product;
 import fr.formcraft.model.entity.QualityCheck;
 import fr.formcraft.model.enums.CapaStatus;
+import fr.formcraft.model.enums.EventType;
 import fr.formcraft.model.enums.NcSeverity;
 import fr.formcraft.model.enums.NcStatus;
-import fr.formcraft.model.enums.NotificationCategory;
-import fr.formcraft.model.enums.UserRole;
 import fr.formcraft.repo.jpa.CorrectiveActionRepository;
 import fr.formcraft.repo.jpa.NonConformanceRepository;
 import fr.formcraft.repo.jpa.ProductRepository;
 import fr.formcraft.repo.jpa.QualityCheckRepository;
 import fr.formcraft.repo.nonconformance.NonConformanceService;
-import fr.formcraft.repo.notification.NotificationService;
+import fr.formcraft.sdk.events.EventActionRuleService;
+import fr.formcraft.sdk.events.EventContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,19 +33,19 @@ public class NonConformanceServiceImpl implements NonConformanceService {
     private final CorrectiveActionRepository correctiveActionRepository;
     private final ProductRepository productRepository;
     private final QualityCheckRepository qualityCheckRepository;
-    private final NotificationService notificationService;
+    private final EventActionRuleService eventActionRuleService;
 
     @Autowired
     public NonConformanceServiceImpl(NonConformanceRepository nonConformanceRepository,
                                       CorrectiveActionRepository correctiveActionRepository,
                                       ProductRepository productRepository,
                                       QualityCheckRepository qualityCheckRepository,
-                                      NotificationService notificationService) {
+                                      EventActionRuleService eventActionRuleService) {
         this.nonConformanceRepository = nonConformanceRepository;
         this.correctiveActionRepository = correctiveActionRepository;
         this.productRepository = productRepository;
         this.qualityCheckRepository = qualityCheckRepository;
-        this.notificationService = notificationService;
+        this.eventActionRuleService = eventActionRuleService;
     }
 
     @Override
@@ -89,9 +90,9 @@ public class NonConformanceServiceImpl implements NonConformanceService {
 
         NonConformance saved = nonConformanceRepository.save(nc);
 
-        notificationService.notifyRole(UserRole.QUALITY_MANAGER, "Non-conformance raised: " + severity,
-                "\"" + title + "\" raised against " + product.getName(),
-                "/non-conformances/" + saved.getId(), NotificationCategory.QUALITY);
+        eventActionRuleService.fire(EventType.NON_CONFORMANCE_OPENED,
+                new EventContext(product, title, product.getName() + " (" + severity + ")",
+                        "/non-conformances/" + saved.getId(), raisedBy));
 
         return saved;
     }
@@ -114,6 +115,7 @@ public class NonConformanceServiceImpl implements NonConformanceService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(null, 'NON_CONFORMANCE_CLOSE')")
     public NonConformance close(Long id) {
         NonConformance nc = getById(id);
         if (!nc.getStatus().canTransitionTo(NcStatus.CLOSED)) {

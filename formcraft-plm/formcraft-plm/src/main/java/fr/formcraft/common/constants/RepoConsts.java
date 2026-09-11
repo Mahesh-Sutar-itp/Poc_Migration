@@ -61,6 +61,10 @@ public final class RepoConsts {
     public static final int    MAX_PAGE_SIZE       = 100;
 
     // ── Report types ────────────────────────────────────────────────────────
+    // These were originally declared with no consumer. Customization Gate 5
+    // (fr.formcraft.model.entity.ReportTemplate) completes the intent: PRODUCT_SHEET
+    // and ALLERGEN_SUMMARY are now seeded report_templates rows (see
+    // V6__report_builder_gate.sql) using these exact literal values as their key.
     public static final String REPORT_PRODUCT_SHEET   = "PRODUCT_SHEET";
     public static final String REPORT_NUTRITION_FACTS = "NUTRITION_FACTS";
     public static final String REPORT_ALLERGEN_SUMMARY = "ALLERGEN_SUMMARY";

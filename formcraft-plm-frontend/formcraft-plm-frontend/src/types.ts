@@ -287,3 +287,43 @@ export interface ExtensionInfo {
   className: string;
   packageName: string;
 }
+
+export type EventType = 'CHANGE_REQUEST_SUBMITTED' | 'CHANGE_REQUEST_APPROVED' | 'CHANGE_REQUEST_REJECTED'
+  | 'NON_CONFORMANCE_OPENED' | 'INVENTORY_LOW_STOCK';
+export type EventActionType = 'NOTIFY_ROLE' | 'NOTIFY_INITIATING_USER';
+
+export interface EventActionRule {
+  id: number;
+  eventType: EventType;
+  conditionProductType?: ProductType;
+  actionType: EventActionType;
+  targetRole?: UserRole;
+  notificationTitle: string;
+  messageTemplate: string;
+  notificationCategory: NotificationCategory;
+  enabled: boolean;
+  createdAt: string;
+}
+
+export type RuleEffect = 'ALLOW' | 'DENY';
+
+export interface AccessRule {
+  id: number;
+  role: UserRole;
+  actionKey: string;
+  effect: RuleEffect;
+  createdAt: string;
+}
+
+export type TargetEntity = 'PRODUCT';
+
+export interface ReportTemplate {
+  id: number;
+  templateKey: string;
+  name: string;
+  targetEntity: TargetEntity;
+  fields: string[];
+  labels: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+}
