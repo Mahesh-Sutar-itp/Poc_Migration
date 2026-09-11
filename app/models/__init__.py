@@ -18,11 +18,12 @@ from app.models.document import Document
 from app.models.stock_lot import StockLot
 from app.models.stock_movement import StockMovement
 from app.models.notification import Notification
+from app.models.custom_attribute_definition import CustomAttributeDefinition
 
 __all__ = [
     "Product", "CompositionLine", "NutrientValue", "FormulationResult",
     "WorkflowTask", "QualityCheck", "AuditLog", "User", "Supplier",
     "SupplierProduct", "Specification", "NonConformance", "CorrectiveAction",
     "ChangeRequest", "Project", "ProjectMilestone", "Document", "StockLot",
-    "StockMovement", "Notification",
+    "StockMovement", "Notification", "CustomAttributeDefinition",
 ]

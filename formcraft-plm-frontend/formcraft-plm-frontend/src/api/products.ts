@@ -19,6 +19,7 @@ export interface CreateProductRequest {
   costPerKg?: number;
   formulaExpression?: string;
   allergenFlags?: string;
+  customAttributes?: Record<string, unknown>;
 }
 
 export function fetchProducts(page = 0, size = 20, sortBy = 'name') {

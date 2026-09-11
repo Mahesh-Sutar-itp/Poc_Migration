@@ -58,6 +58,7 @@ def create_product(body: ProductCreateRequest, db: Annotated[Session, Depends(ge
         from decimal import Decimal
         p.cost_per_kg = Decimal(str(body.costPerKg))
     p.formula_expression = body.formulaExpression; p.allergen_flags = body.allergenFlags
+    p.custom_attributes = body.customAttributes or {}
     p.created_by = user.username; p.updated_by = user.username
     return _product_dict(product_service.create_product(db, p, user.username))
 
@@ -67,7 +68,8 @@ def update_product(product_id: int, body: ProductUpdateRequest, db: Annotated[Se
     return _product_dict(product_service.update_product(
         db, product_id, name=body.name, description=body.description, unit=body.unit,
         cost_per_kg=body.costPerKg, formula_expression=body.formulaExpression,
-        allergen_flags=body.allergenFlags, performed_by=user.username))
+        allergen_flags=body.allergenFlags, custom_attributes=body.customAttributes,
+        performed_by=user.username))
 
 
 @router.delete("/{product_id}", status_code=204)

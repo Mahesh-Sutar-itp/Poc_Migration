@@ -17,6 +17,7 @@ class ProductBase(CamelModel):
     cost_per_kg: float | None = None
     formula_expression: str | None = None
     allergen_flags: str | None = None
+    custom_attributes: dict | None = None
     created_at: datetime
     updated_at: datetime
     created_by: str | None = None
@@ -55,6 +56,7 @@ class ProductCreateRequest(BaseModel):
     costPerKg: float | None = None
     formulaExpression: str | None = None
     allergenFlags: str | None = None
+    customAttributes: dict | None = None
 
 
 class ProductUpdateRequest(BaseModel):
@@ -64,6 +66,7 @@ class ProductUpdateRequest(BaseModel):
     costPerKg: float | None = None
     formulaExpression: str | None = None
     allergenFlags: str | None = None
+    customAttributes: dict | None = None
 
 
 from app.schemas.nutrient_value import NutrientValueSchema

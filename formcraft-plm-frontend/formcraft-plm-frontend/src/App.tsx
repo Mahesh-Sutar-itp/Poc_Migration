@@ -17,6 +17,7 @@ import { Inventory } from './pages/Inventory';
 import { MyTasks } from './pages/MyTasks';
 import { Reports } from './pages/Reports';
 import { Users } from './pages/Users';
+import { Customizations } from './pages/Customizations';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute roles={['ADMIN']}><Users /></ProtectedRoute>} />
+          <Route path="/customizations" element={<ProtectedRoute roles={['ADMIN']}><Customizations /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

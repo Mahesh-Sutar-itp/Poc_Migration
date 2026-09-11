@@ -6,6 +6,7 @@ from app.enums.notification_category import NotificationCategory
 from app.enums.user_role import UserRole
 from app.models.change_request import ChangeRequest
 from app.repositories import change_request_repository, product_repository
+from app.sdk.workflow import ChangeRequestTransitionContext, registered_handlers
 from app.services import audit_service, notification_service
 
 ENTITY_TYPE = "ChangeRequest"
@@ -55,12 +56,13 @@ def submit(db: Session, cr_id: int) -> ChangeRequest:
 
 
 def decide(db: Session, cr_id: int, approve: bool, decided_by: str | None, comment: str | None) -> ChangeRequest:
-    target = ChangeRequestStatus.APPROVED if approve else ChangeRequestStatus.REJECTED
-    cr = _transition(db, cr_id, target)
+    cr = get_by_id(db, cr_id)
     cr.decided_by = decided_by
     cr.decided_at = datetime.datetime.now(datetime.UTC)
     cr.decision_comment = comment
-    saved = change_request_repository.save(db, cr)
+
+    target = ChangeRequestStatus.APPROVED if approve else ChangeRequestStatus.REJECTED
+    saved = _transition_cr(db, cr, target)
     db.commit()
     audit_service.log_action(saved.id, ENTITY_TYPE, "APPROVE" if approve else "REJECT", f"by={decided_by} comment={comment}", decided_by)
     if saved.requested_by:
@@ -78,9 +80,22 @@ def implement(db: Session, cr_id: int) -> ChangeRequest:
 
 
 def _transition(db: Session, cr_id: int, target: ChangeRequestStatus) -> ChangeRequest:
-    cr = get_by_id(db, cr_id)
+    return _transition_cr(db, get_by_id(db, cr_id), target)
+
+
+def _transition_cr(db: Session, cr: ChangeRequest, target: ChangeRequestStatus) -> ChangeRequest:
     current = ChangeRequestStatus(cr.status)
     if not current.can_transition_to(target):
         raise FormCraftException(f"Invalid change request transition: {current.value} -> {target.value}")
+
+    context = ChangeRequestTransitionContext(change_request=cr, from_status=current, to_status=target)
+    for handler in registered_handlers():
+        handler.before_transition(context)
+
     cr.status = target.value
-    return change_request_repository.save(db, cr)
+    saved = change_request_repository.save(db, cr)
+
+    for handler in registered_handlers():
+        handler.after_transition(context)
+
+    return saved

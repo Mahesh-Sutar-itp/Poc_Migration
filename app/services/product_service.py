@@ -10,7 +10,7 @@ from app.enums.product_type import ProductType
 from app.models.composition_line import CompositionLine
 from app.models.product import Product
 from app.repositories import composition_line_repository, product_repository
-from app.services import audit_service
+from app.services import audit_service, custom_attribute_service
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 def create_product(db: Session, product: Product, performed_by: str | None = None) -> Product:
     if product_repository.exists_by_code(db, product.code):
         raise FormCraftException(f"Product with code '{product.code}' already exists")
+    custom_attribute_service.validate(db, product)
     product.state = ProductState.DRAFT.value
     saved = product_repository.save(db, product)
     db.commit()
@@ -28,6 +29,7 @@ def create_product(db: Session, product: Product, performed_by: str | None = Non
 def update_product(db: Session, product_id: int, name: str | None = None, description: str | None = None,
                    unit: str | None = None, cost_per_kg: float | None = None,
                    formula_expression: str | None = None, allergen_flags: str | None = None,
+                   custom_attributes: dict | None = None,
                    performed_by: str | None = None) -> Product:
     existing = get_by_id(db, product_id)
     if existing.state == ProductState.VALIDATED.value:
@@ -44,6 +46,9 @@ def update_product(db: Session, product_id: int, name: str | None = None, descri
         existing.formula_expression = formula_expression
     if allergen_flags is not None:
         existing.allergen_flags = allergen_flags
+    if custom_attributes is not None:
+        existing.custom_attributes = custom_attributes
+    custom_attribute_service.validate(db, existing)
     saved = product_repository.save(db, existing)
     db.commit()
     audit_service.log_update(product_id, f"name={existing.name}", performed_by)

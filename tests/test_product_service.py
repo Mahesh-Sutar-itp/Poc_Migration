@@ -18,9 +18,10 @@ class TestProductService:
         self.product.product_type = "FINISHED_PRODUCT"
         self.product.state = "DRAFT"
 
+    @patch("app.services.product_service.custom_attribute_service")
     @patch("app.services.product_service.audit_service")
     @patch("app.services.product_service.product_repository")
-    def test_create_product_success(self, mock_repo, mock_audit):
+    def test_create_product_success(self, mock_repo, mock_audit, mock_attrs):
         mock_repo.exists_by_code.return_value = False
         mock_repo.save.return_value = self.product
         db = MagicMock()

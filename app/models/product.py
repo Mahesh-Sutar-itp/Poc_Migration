@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import datetime
 from decimal import Decimal
-from typing import List
+from typing import Dict, List
 
 from sqlalchemy import BigInteger, Column, Numeric, String, Text, DateTime
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -25,6 +26,9 @@ class Product(Base):
     cost_per_kg: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     formula_expression: Mapped[str | None] = mapped_column(Text)
     allergen_flags: Mapped[str | None] = mapped_column(Text)
+    # Customization Gate 2 (BMIDE-style): client-defined attributes not known to core.
+    # Keys are validated at save time against CustomAttributeDefinition.
+    custom_attributes: Mapped[Dict[str, object]] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC), onupdate=lambda: datetime.datetime.now(datetime.UTC))
     created_by: Mapped[str | None] = mapped_column(String(100))

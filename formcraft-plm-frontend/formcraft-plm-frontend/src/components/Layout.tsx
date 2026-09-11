@@ -17,6 +17,7 @@ import {
   User as UserIcon,
   Menu,
   X,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import * as notificationsApi from '../api/notifications';
@@ -41,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/my-tasks', label: 'My Tasks', icon: <ClipboardList size={20} /> },
   { to: '/reports', label: 'Reports', icon: <BarChart3 size={20} /> },
   { to: '/users', label: 'Users', icon: <UsersIcon size={20} />, roles: ['ADMIN'] },
+  { to: '/customizations', label: 'Customizations', icon: <SlidersHorizontal size={20} />, roles: ['ADMIN'] },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
