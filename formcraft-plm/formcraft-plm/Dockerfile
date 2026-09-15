@@ -7,9 +7,11 @@ WORKDIR /build
 COPY pom.xml .
 RUN mvn dependency:go-offline -q
 
-# Build the application
+# Build the application. Skip the Spring Boot repackage step (the -exec fat jar):
+# this image runs off target/classes + copy-dependencies below, never `java -jar`,
+# so building the fat jar here would just be discarded work.
 COPY src ./src
-RUN mvn clean package -DskipTests -q
+RUN mvn clean package -DskipTests -Dspring-boot.repackage.skip=true -q
 
 # Flatten the runtime classpath (compiled classes + resolved third-party jars) so the
 # run stage can start the app with a plain `java -cp`, appending whichever jars happen

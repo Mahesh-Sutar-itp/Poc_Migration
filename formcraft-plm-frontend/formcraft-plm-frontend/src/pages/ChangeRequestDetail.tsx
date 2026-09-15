@@ -46,7 +46,7 @@ export function ChangeRequestDetail() {
 
   const handleDecide = async (approve: boolean) => {
     const comment = window.prompt(approve ? 'Approval comment (optional):' : 'Rejection reason:') || undefined;
-    if (!approve && !comment) return toast('A rejection reason is required', 'error');
+    // if (!approve && !comment) return toast('A rejection reason is required', 'error');
     try {
       await changeRequestsApi.decideChangeRequest(crId, approve, comment);
       toast(`Change request ${approve ? 'approved' : 'rejected'}`, 'success');

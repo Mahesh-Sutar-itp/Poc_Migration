@@ -453,6 +453,38 @@ export function Customizations() {
         </div>
       </div>
 
+            <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h2 style={{ margin: 0 }}>Gate 1 — Workflow Extensions</h2>
+        <p className="text-muted" style={{ fontSize: '0.85rem', margin: '0.25rem 0 1rem' }}>
+          Code-driven. Registered by deploying a class that implements <code>ChangeRequestTransitionHandler</code> — read-only here by design; adding one requires a developer and a deploy, not a form.
+        </p>
+
+        <div className="table-responsive">
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
+                <th style={{ padding: '0.75rem 0' }}>Handler</th>
+                <th>Package</th>
+              </tr>
+            </thead>
+            <tbody>
+              {handlers.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="text-muted" style={{ padding: '1rem 0' }}>No handlers deployed on this instance.</td>
+                </tr>
+              ) : (
+                handlers.map((h) => (
+                  <tr key={h.className} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td style={{ padding: '1rem 0' }}>{h.className}</td>
+                    <td className="text-muted">{h.packageName}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>l̥
+
       <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
@@ -492,38 +524,6 @@ export function Customizations() {
                     <td>{d.appliesToProductType || 'Every product type'}</td>
                     <td className="text-muted">{d.validationRegex || '—'}</td>
                     <td className="text-muted" style={{ fontSize: '0.8rem' }}>{formatDateTime(d.createdAt)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h2 style={{ margin: 0 }}>Gate 1 — Workflow Extensions</h2>
-        <p className="text-muted" style={{ fontSize: '0.85rem', margin: '0.25rem 0 1rem' }}>
-          Code-driven. Registered by deploying a class that implements <code>ChangeRequestTransitionHandler</code> — read-only here by design; adding one requires a developer and a deploy, not a form.
-        </p>
-
-        <div className="table-responsive">
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
-                <th style={{ padding: '0.75rem 0' }}>Handler</th>
-                <th>Package</th>
-              </tr>
-            </thead>
-            <tbody>
-              {handlers.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="text-muted" style={{ padding: '1rem 0' }}>No handlers deployed on this instance.</td>
-                </tr>
-              ) : (
-                handlers.map((h) => (
-                  <tr key={h.className} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '1rem 0' }}>{h.className}</td>
-                    <td className="text-muted">{h.packageName}</td>
                   </tr>
                 ))
               )}

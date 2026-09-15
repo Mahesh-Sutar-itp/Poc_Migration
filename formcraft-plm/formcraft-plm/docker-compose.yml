@@ -40,13 +40,14 @@ services:
     # over /app/customs (empty by default — see Dockerfile). Customizations live in
     # the separate Customs repository (sibling to Poc_Migration) and are built there
     # independently of this app; this never requires rebuilding the core image.
-    # volumes:
-    #   - ${CUSTOMS_JARS_DIR:-../../../Customs/nordic-snacks/target}:/app/customs
+    volumes:
+      - ${CUSTOMS_JARS_DIR:-../../../Customs/nordic-snacks/target}:/app/customs
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5

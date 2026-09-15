@@ -144,6 +144,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <!-- Give the executable fat jar a classifier so it's an attached
+                         artifact, not the main one. Without this, `repackage` replaces
+                         target/formcraft-plm-core-1.0.0.jar with the Spring Boot fat jar
+                         (classes nested under BOOT-INF/classes/...), which is exactly
+                         what gets `mvn install`ed — leaving nothing on a normal classpath
+                         for the Customs module (or anything else) to compile against. -->
+                    <classifier>exec</classifier>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
