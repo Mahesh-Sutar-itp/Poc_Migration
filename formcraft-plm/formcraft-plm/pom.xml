@@ -12,14 +12,15 @@
     </parent>
 
     <groupId>fr.formcraft</groupId>
-    <artifactId>formcraft-plm</artifactId>
+    <artifactId>formcraft-plm-core</artifactId>
     <version>1.0.0</version>
-    <name>FormCraft PLM</name>
+    <name>FormCraft PLM Core</name>
     <description>
-        FormCraft PLM — A complex Java Spring Boot monolith for Product Lifecycle Management.
-        Designed as a POC for AWS Transform Java-to-Python migration testing.
-        Mirrors beCPG's service/interface architecture, formulation chain engine,
-        SPEL formula evaluation, workflow state machine, and audit system.
+        FormCraft PLM core — the base application ("addons"), owning the domain model,
+        services, REST API and the SDK extension points (fr.formcraft.sdk.*) that client
+        customizations implement. Contains no client-specific code — customizations live
+        in their own repositories (e.g. the sibling Customs repo) and are built and
+        deployed independently; see README.md.
     </description>
 
     <properties>

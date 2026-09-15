@@ -95,6 +95,11 @@ curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/api/product
 
 ## Project Structure
 
+This repository is the base application only — no client-specific code. Client
+customizations live in a separate repository (`Customs`, a sibling of this one's
+`Poc_Migration` checkout) and are built, versioned and deployed independently. See
+[Customizations](#customizations) below for how the two fit together.
+
 ```
 src/main/java/fr/formcraft/
 ├── FormCraftApplication.java
@@ -102,6 +107,7 @@ src/main/java/fr/formcraft/
 ├── common/constants/          ← RepoConsts (mirrors beCPG's RepoConsts)
 ├── model/entity/              ← JPA entities: Product, CompositionLine, NutrientValue, etc.
 ├── model/enums/               ← ProductType, ProductState, NutrientType, etc.
+├── sdk/                       ← Extension points client customizations implement
 ├── repo/
 │   ├── jpa/                   ← Spring Data JPA repositories
 │   ├── formulation/           ← FormulationService + 4 chain handlers (core complexity)
@@ -115,3 +121,27 @@ src/main/java/fr/formcraft/
 ├── web/exception/             ← GlobalExceptionHandler
 └── config/                    ← SecurityConfig
 ```
+
+## Customizations
+
+Client-specific behavior (a "Gate 1" workflow rule handler, e.g.
+`RequireCommentOnRejectionHandler` for Nordic Snacks Co.) is built entirely outside
+this repository, in the separate **Customs** repository. A customization there
+compiles against this app's SDK (`fr.formcraft.sdk.*`) with a `provided`-scope
+Maven dependency on `fr.formcraft:formcraft-plm-core`, so its jar contains only
+that client's own classes — never a copy of core.
+
+At runtime, core's compiled classes/resources and a customization's jar sit side by
+side on the same JVM classpath. There's no registry or plugin loader to wire up:
+Spring's component scan (rooted at `fr.formcraft`, the base package of
+`FormCraftApplication`) finds any `@Component` — including
+`ChangeRequestTransitionHandler` implementations — wherever it is on the classpath.
+Adding, removing, or swapping a customization never means touching a core file or
+rebuilding this image.
+
+**Docker packaging:** the `Dockerfile` builds only this app, and ships with an
+empty `/app/customs` directory already on the classpath
+(`java -cp classes:lib/*:customs/*`). Activating a customization means
+bind-mounting a folder of its built jars over `/app/customs` — see the commented
+`volumes:` entry in `docker-compose.yml`. See the Customs repository's README for
+how to build and publish one.

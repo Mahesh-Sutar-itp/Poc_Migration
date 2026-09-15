@@ -36,6 +36,12 @@ services:
       FORMCRAFT_CORS_ORIGINS: ${FORMCRAFT_CORS_ORIGINS:-http://localhost:3000}
     ports:
       - "8080:8080"
+    # Activate client customizations by bind-mounting a folder of their built jars
+    # over /app/customs (empty by default — see Dockerfile). Customizations live in
+    # the separate Customs repository (sibling to Poc_Migration) and are built there
+    # independently of this app; this never requires rebuilding the core image.
+    # volumes:
+    #   - ${CUSTOMS_JARS_DIR:-../../../Customs/nordic-snacks/target}:/app/customs
     depends_on:
       postgres:
         condition: service_healthy
