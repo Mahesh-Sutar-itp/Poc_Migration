@@ -13,7 +13,8 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-_SQL_DIR = Path(__file__).resolve().parents[3] / "formcraft-plm" / "formcraft-plm" / "src" / "main" / "resources" / "db" / "migration"
+# Vendored into the repo so the migration works both on the host and in the image.
+_SQL_DIR = Path(__file__).resolve().parents[1] / "sql"
 
 
 def upgrade() -> None:

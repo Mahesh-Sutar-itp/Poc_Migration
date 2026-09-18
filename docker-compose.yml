@@ -11,16 +11,29 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U formcraft -d formcraft"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
+    # The customization repo is injected into the run command — swapping a client's
+    # customizations means changing this path and the mount below, nothing in the image.
+    command: ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8080", "--custom-path", "/mnt/formcraft-custom"]
     ports:
       - "8000:8080"
     environment:
       FORMCRAFT_DATABASE_URL: postgresql://formcraft:formcraft123@db:5432/formcraft
       FORMCRAFT_JWT_SECRET: formcraft-plm-dev-secret-key-please-override-in-production-min-256-bits
+    volumes:
+      # Writable: Gate 2 records every custom column it adds back into the repo manifest.
+      - ../customs:/mnt/formcraft-custom
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build: ./formcraft-plm-frontend/formcraft-plm-frontend

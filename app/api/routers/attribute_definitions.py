@@ -7,10 +7,11 @@ from app.api.deps import AdminUser
 from app.core.database import get_db
 from app.models.custom_attribute_definition import CustomAttributeDefinition
 from app.schemas.custom_attribute_definition import CustomAttributeDefinitionSchema, DefineAttributeRequest
-from app.services import custom_attribute_service
+from app.services import custom_attribute_manifest, custom_attribute_service
 
-# Admin-facing endpoint for Customization Gate 2 (BMIDE-style): register a custom
-# attribute on Product without a schema migration or a Python code change.
+# Admin-facing endpoint for Customization Gate 2 (BMIDE-style): register a custom attribute
+# on Product. Each one materialises a real products column and is tracked in the mounted
+# customization repo's manifest — no Python code change, no hand-written migration.
 router = APIRouter(prefix="/api/attribute-definitions", tags=["customizations"])
 
 
@@ -20,6 +21,13 @@ def list_definitions(db: Annotated[Session, Depends(get_db)], user: AdminUser):
         CustomAttributeDefinitionSchema.model_validate(d, from_attributes=True)
         for d in custom_attribute_service.list_definitions(db)
     ]
+
+
+@router.get("/manifest")
+def manifest(user: AdminUser):
+    """Where Gate 2 attributes are tracked in the client's customization repo."""
+    path = custom_attribute_manifest.manifest_path()
+    return {"path": str(path) if path else None, "attributes": custom_attribute_manifest.load()}
 
 
 @router.post("", status_code=201, response_model_exclude_none=True)

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def create_product(db: Session, product: Product, performed_by: str | None = None) -> Product:
     if product_repository.exists_by_code(db, product.code):
         raise FormCraftException(f"Product with code '{product.code}' already exists")
-    custom_attribute_service.validate(db, product)
+    custom_attribute_service.validate_and_apply(db, product)
     product.state = ProductState.DRAFT.value
     saved = product_repository.save(db, product)
     db.commit()
@@ -48,7 +48,7 @@ def update_product(db: Session, product_id: int, name: str | None = None, descri
         existing.allergen_flags = allergen_flags
     if custom_attributes is not None:
         existing.custom_attributes = custom_attributes
-    custom_attribute_service.validate(db, existing)
+    custom_attribute_service.validate_and_apply(db, existing)
     saved = product_repository.save(db, existing)
     db.commit()
     audit_service.log_update(product_id, f"name={existing.name}", performed_by)

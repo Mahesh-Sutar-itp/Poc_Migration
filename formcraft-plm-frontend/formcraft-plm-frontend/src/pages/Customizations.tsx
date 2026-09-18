@@ -3,7 +3,7 @@ import { Plus, X } from 'lucide-react';
 import * as attributeDefinitionsApi from '../api/attributeDefinitions';
 import * as extensionsApi from '../api/extensions';
 import type { CreateAttributeDefinitionRequest } from '../api/attributeDefinitions';
-import type { CustomAttributeDataType, CustomAttributeDefinition, ExtensionInfo, ProductType } from '../types';
+import type { CustomAttributeDataType, CustomAttributeDefinition, CustomAttributeManifest, ExtensionInfo, ProductType } from '../types';
 import { toast } from '../components/Toast';
 import { ApiError } from '../api/client';
 import { formatDateTime } from '../utils';
@@ -127,11 +127,13 @@ function NewAttributeDefinitionModal({ isOpen, onClose, onCreated }: { isOpen: b
 
 export function Customizations() {
   const [definitions, setDefinitions] = useState<CustomAttributeDefinition[]>([]);
+  const [manifest, setManifest] = useState<CustomAttributeManifest | null>(null);
   const [handlers, setHandlers] = useState<ExtensionInfo[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const loadDefinitions = () => {
     attributeDefinitionsApi.fetchAttributeDefinitions().then(setDefinitions).catch(() => toast('Failed to load attribute definitions', 'error'));
+    attributeDefinitionsApi.fetchAttributeManifest().then(setManifest).catch(() => setManifest(null));
   };
 
   useEffect(() => {
@@ -153,7 +155,13 @@ export function Customizations() {
           <div>
             <h2 style={{ margin: 0 }}>Gate 2 — Custom Attributes</h2>
             <p className="text-muted" style={{ fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
-              Config-driven. Takes effect immediately on Product create/update — no redeploy.
+              Config-driven. Each attribute becomes a real <code>products</code> column and is tracked in the
+              customization repo — takes effect immediately on Product create/update, no redeploy.
+            </p>
+            <p className="text-muted" style={{ fontSize: '0.75rem', margin: '0.35rem 0 0' }}>
+              {manifest?.path
+                ? <>Tracked in <code>{manifest.path}</code></>
+                : 'No customization repo mounted — attributes will not be tracked in a manifest.'}
             </p>
           </div>
           <button className="btn" onClick={() => setModalOpen(true)}><Plus size={18} /> New Attribute</button>
@@ -164,6 +172,7 @@ export function Customizations() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
                 <th style={{ padding: '0.75rem 0' }}>Key</th>
+                <th>Column</th>
                 <th>Label</th>
                 <th>Type</th>
                 <th>Required</th>
@@ -175,12 +184,13 @@ export function Customizations() {
             <tbody>
               {definitions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-muted" style={{ padding: '1rem 0' }}>No custom attributes defined yet.</td>
+                  <td colSpan={8} className="text-muted" style={{ padding: '1rem 0' }}>No custom attributes defined yet.</td>
                 </tr>
               ) : (
                 definitions.map((d) => (
                   <tr key={d.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <td style={{ padding: '1rem 0' }}><code>{d.attributeKey}</code></td>
+                    <td className="text-muted"><code>products.{d.columnName || `x_${d.attributeKey}`}</code></td>
                     <td>{d.label}</td>
                     <td>{d.dataType}</td>
                     <td>{d.required ? <span className="badge badge-validation">Required</span> : '—'}</td>
@@ -198,7 +208,9 @@ export function Customizations() {
       <div className="glass-panel" style={{ padding: '1.5rem' }}>
         <h2 style={{ margin: 0 }}>Gate 1 — Workflow Extensions</h2>
         <p className="text-muted" style={{ fontSize: '0.85rem', margin: '0.25rem 0 1rem' }}>
-          Code-driven. Registered by deploying a class that implements <code>ChangeRequestTransitionHandler</code> — read-only here by design; adding one requires a developer and a deploy, not a form.
+          Code-driven. A handler implementing <code>ChangeRequestTransitionHandler</code> is dropped into the
+          customization repo's <code>addons/</code> directory and loaded at startup — read-only here by design;
+          adding one requires a developer and a deploy, not a form.
         </p>
 
         <div className="table-responsive">

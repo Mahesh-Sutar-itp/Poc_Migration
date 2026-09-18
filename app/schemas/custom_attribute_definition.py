@@ -15,6 +15,7 @@ class CustomAttributeDefinitionSchema(CamelModel):
     required: bool
     applies_to_product_type: str | None = None
     validation_regex: str | None = None
+    column_name: str | None = None
     created_at: datetime
 
 

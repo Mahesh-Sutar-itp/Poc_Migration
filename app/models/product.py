@@ -5,12 +5,12 @@ from decimal import Decimal
 from typing import Dict, List
 
 from sqlalchemy import BigInteger, Column, Numeric, String, Text, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.enums.product_state import ProductState
 from app.enums.product_type import ProductType
+from app.sdk.attributes import attached_attributes, to_json_value
 
 
 class Product(Base):
@@ -26,9 +26,6 @@ class Product(Base):
     cost_per_kg: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     formula_expression: Mapped[str | None] = mapped_column(Text)
     allergen_flags: Mapped[str | None] = mapped_column(Text)
-    # Customization Gate 2 (BMIDE-style): client-defined attributes not known to core.
-    # Keys are validated at save time against CustomAttributeDefinition.
-    custom_attributes: Mapped[Dict[str, object]] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC))
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC), onupdate=lambda: datetime.datetime.now(datetime.UTC))
     created_by: Mapped[str | None] = mapped_column(String(100))
@@ -53,6 +50,29 @@ class Product(Base):
     quality_checks: Mapped[List["QualityCheck"]] = relationship(
         "QualityCheck", back_populates="product", cascade="all, delete-orphan",
     )
+
+    @property
+    def custom_attributes(self) -> Dict[str, object]:
+        """Customization Gate 2 values, read straight off the dynamically-mapped custom
+        columns (app.sdk.attributes) and rendered as the JSON scalars the API exposes."""
+        values: Dict[str, object] = {}
+        for attribute in attached_attributes():
+            if attribute.applies_to_product_type and attribute.applies_to_product_type != self.product_type:
+                continue
+            value = getattr(self, attribute.column_name, None)
+            if value is not None:
+                values[attribute.attribute_key] = to_json_value(value)
+        return values
+
+    @custom_attributes.setter
+    def custom_attributes(self, values: Dict[str, object] | None) -> None:
+        """Held aside rather than written straight through: custom_attribute_service
+        validates the submitted keys against their definitions before they reach a column."""
+        self._submitted_custom_attributes = dict(values or {})
+
+    def take_submitted_custom_attributes(self) -> Dict[str, object] | None:
+        """The values submitted for this save, or None if the caller supplied none."""
+        return self.__dict__.pop("_submitted_custom_attributes", None)
 
     def has_allergen(self, allergen: str) -> bool:
         if not self.allergen_flags:

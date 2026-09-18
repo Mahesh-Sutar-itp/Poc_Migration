@@ -9,9 +9,9 @@ from app.core.database import Base
 
 
 class CustomAttributeDefinition(Base):
-    """Customization Gate 2 (BMIDE-style): a client-defined attribute that Product
-    instances may carry in their custom_attributes map. Registering one of these is a
-    config-time action — no schema migration or Python code required."""
+    """Customization Gate 2 (BMIDE-style): a client-defined attribute on Product. Registering
+    one materialises a real column on products (see app.sdk.attributes) and records it in the
+    customization repo's manifest — no Python code and no hand-written migration required."""
 
     __tablename__ = "product_attribute_definitions"
 
@@ -23,6 +23,8 @@ class CustomAttributeDefinition(Base):
     # Restrict this attribute to one product type; None applies it to every product.
     applies_to_product_type: Mapped[str | None] = mapped_column(String(30))
     validation_regex: Mapped[str | None] = mapped_column(String(255))
+    # The physical products column this attribute was materialised as (x_<attribute_key>).
+    column_name: Mapped[str | None] = mapped_column(String(63))
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC)
     )

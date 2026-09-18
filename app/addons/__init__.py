@@ -1,10 +1,7 @@
-"""Client-specific customizations plug in here (Customization Gate 1).
+"""Sealed. Client customizations do not go here.
 
-Drop a module in this package that subclasses
-app.sdk.workflow.ChangeRequestTransitionHandler and calls
-app.sdk.workflow.register_handler(...) at import time. app.sdk.discovery.load_addons()
-imports every module in this package at startup, so the handler is picked up
-automatically — no other file needs to change.
-
-No handlers are registered here by default; this gate is open but empty.
+This package exists only so the SDK has a stable import anchor; it must stay empty.
+Customization Gate 1 rules live in the external customization repo mounted at
+FORMCRAFT_CUSTOM_PATH (see app/sdk/discovery.py) — app.sdk.discovery.load_addons()
+refuses to start the service if a client module is found in this package.
 """

@@ -280,7 +280,15 @@ export interface CustomAttributeDefinition {
   required: boolean;
   appliesToProductType?: ProductType;
   validationRegex?: string;
+  /** The products column this attribute was materialised as. */
+  columnName?: string;
   createdAt: string;
+}
+
+export interface CustomAttributeManifest {
+  /** Where the attributes are tracked in the mounted customization repo. */
+  path: string | null;
+  attributes: Record<string, unknown>[];
 }
 
 export interface ExtensionInfo {

@@ -15,6 +15,11 @@ class Settings(BaseSettings):
 
     max_upload_size: int = 10 * 1024 * 1024  # 10 MB
 
+    # Root(s) of the external customization repo mounted alongside the service — holds
+    # addons/ (Gate 1 workflow rules) and the custom product attribute manifest (Gate 2).
+    # Separate multiple roots with the platform path separator, like Odoo's --addons-path.
+    custom_path: str = ""
+
     model_config = {"env_prefix": "FORMCRAFT_", "env_nested_delimiter": "__", "extra": "ignore"}
 
 

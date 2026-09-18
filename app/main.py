@@ -1,3 +1,6 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,13 +10,33 @@ from app.api.routers import (
     health, inventory, non_conformances, notifications, products, projects, quality,
     reports, specifications, suppliers, users, workflow, workflow_tasks,
 )
+from app.core.database import SessionLocal
 from app.sdk.discovery import load_addons
+from app.services import custom_attribute_service
 
-app = FastAPI(title="FormCraft PLM", version="1.0.0")
+logger = logging.getLogger(__name__)
 
-# Customization Gate 1 auto-discovery: import every module under app.addons so its
-# handlers self-register before any request is served (see app/sdk/discovery.py).
+# Customization Gate 1 auto-discovery: import every module in the mounted customization
+# repo so its handlers self-register before any request is served. Import-time rather than
+# startup, so a sealed-package or broken-addon failure surfaces before the port opens.
 load_addons()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Customization Gate 2: reconcile the repo manifest, the database and the ORM, so the
+    # custom columns a client has defined are mapped before the first request.
+    try:
+        with SessionLocal() as db:
+            custom_attribute_service.sync(db)
+    except Exception:
+        # Degraded rather than dead: core PLM works, Gate 2 attributes stay dormant until
+        # the database is reachable and the service restarts.
+        logger.exception("Customization Gate 2 sync failed — custom attributes are not mapped")
+    yield
+
+
+app = FastAPI(title="FormCraft PLM", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

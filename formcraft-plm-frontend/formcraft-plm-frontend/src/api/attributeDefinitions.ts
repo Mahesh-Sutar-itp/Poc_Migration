@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { CustomAttributeDataType, CustomAttributeDefinition, ProductType } from '../types';
+import type { CustomAttributeDataType, CustomAttributeDefinition, CustomAttributeManifest, ProductType } from '../types';
 
 export interface CreateAttributeDefinitionRequest {
   attributeKey: string;
@@ -16,4 +16,8 @@ export function fetchAttributeDefinitions() {
 
 export function createAttributeDefinition(data: CreateAttributeDefinitionRequest) {
   return api.post<CustomAttributeDefinition>('/attribute-definitions', data);
+}
+
+export function fetchAttributeManifest() {
+  return api.get<CustomAttributeManifest>('/attribute-definitions/manifest');
 }
