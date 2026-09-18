@@ -18,10 +18,16 @@ import java.util.Map;
 public class CustomAttributeServiceImpl implements CustomAttributeService {
 
     private final CustomAttributeDefinitionRepository definitionRepository;
+    private final ProductAttributeColumnManager columnManager;
+    private final ProductAttributeConfigFileSync configFileSync;
 
     @Autowired
-    public CustomAttributeServiceImpl(CustomAttributeDefinitionRepository definitionRepository) {
+    public CustomAttributeServiceImpl(CustomAttributeDefinitionRepository definitionRepository,
+                                       ProductAttributeColumnManager columnManager,
+                                       ProductAttributeConfigFileSync configFileSync) {
         this.definitionRepository = definitionRepository;
+        this.columnManager = columnManager;
+        this.configFileSync = configFileSync;
     }
 
     @Override
@@ -36,7 +42,11 @@ public class CustomAttributeServiceImpl implements CustomAttributeService {
         if (definitionRepository.existsByAttributeKey(definition.getAttributeKey())) {
             throw new FormCraftException("Attribute '" + definition.getAttributeKey() + "' is already defined");
         }
-        return definitionRepository.save(definition);
+
+        columnManager.ensureColumn(definition);
+        CustomAttributeDefinition saved = definitionRepository.save(definition);
+        configFileSync.upsert(saved);
+        return saved;
     }
 
     @Override

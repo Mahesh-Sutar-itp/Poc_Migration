@@ -58,6 +58,13 @@ formcraft:
     expiration-ms: ${FORMCRAFT_JWT_EXPIRATION_MS:86400000}
   cors:
     allowed-origins: ${FORMCRAFT_CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  customizations:
+    # Root folder holding one subfolder per customization repo (e.g. the sibling
+    # Customs repo, with Customs/nordic-snacks as one such subfolder). Gate 2
+    # custom attribute definitions are read from and written back to a
+    # UI-product-attributes-config/product-attributes.json file inside whichever
+    # of those subfolders exist — see CustomAttributeConfigLoader / ProductAttributeConfigFileSync.
+    root-path: ${FORMCRAFT_CUSTOMIZATIONS_ROOT_PATH:../../../Customs}
 
 logging:
   level:

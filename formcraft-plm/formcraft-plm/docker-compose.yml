@@ -34,6 +34,7 @@ services:
       FORMCRAFT_JWT_SECRET: formcraft-plm-docker-compose-secret-key-min-256-bits-change-me
       FORMCRAFT_JWT_EXPIRATION_MS: 86400000
       FORMCRAFT_CORS_ORIGINS: ${FORMCRAFT_CORS_ORIGINS:-http://localhost:3000}
+      FORMCRAFT_CUSTOMIZATIONS_ROOT_PATH: /app/customs-src
     ports:
       - "8080:8080"
     # Activate client customizations by bind-mounting a folder of their built jars
@@ -42,6 +43,11 @@ services:
     # independently of this app; this never requires rebuilding the core image.
     volumes:
       - ${CUSTOMS_JARS_DIR:-../../../Customs/nordic-snacks/target}:/app/customs
+      # Read-write mount of the whole Customs repo root so Gate 2's
+      # UI-product-attributes-config/product-attributes.json files (one per
+      # customization subfolder) can be read on startup and written back to
+      # when a new attribute is defined via the API — see FORMCRAFT_CUSTOMIZATIONS_ROOT_PATH above.
+      - ${CUSTOMS_ROOT_DIR:-../../../Customs}:/app/customs-src
     depends_on:
       postgres:
         condition: service_healthy
