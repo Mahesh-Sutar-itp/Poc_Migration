@@ -29,7 +29,7 @@ services:
       FORMCRAFT_JWT_SECRET: formcraft-plm-dev-secret-key-please-override-in-production-min-256-bits
     volumes:
       # Writable: Gate 2 records every custom column it adds back into the repo manifest.
-      - ../customs:/mnt/formcraft-custom
+      - ./customs:/mnt/formcraft-custom
     depends_on:
       db:
         condition: service_healthy

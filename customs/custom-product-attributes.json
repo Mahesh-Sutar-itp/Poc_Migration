@@ -1,0 +1,36 @@
+{
+  "schema": "formcraft/custom-product-attributes/v1",
+  "table": "products",
+  "attributes": [
+    {
+      "attributeKey": "batch_no",
+      "columnName": "x_batch_no",
+      "label": "test Label",
+      "dataType": "STRING",
+      "sqlType": "VARCHAR(255)",
+      "required": true,
+      "appliesToProductType": null,
+      "validationRegex": null
+    },
+    {
+      "attributeKey": "storage_temp_c_1789982602596",
+      "columnName": "x_storage_temp_c_1789982602596",
+      "label": "Storage Temperature (C)",
+      "dataType": "NUMBER",
+      "sqlType": "NUMERIC(18,6)",
+      "required": false,
+      "appliesToProductType": null,
+      "validationRegex": null
+    },
+    {
+      "attributeKey": "test_3",
+      "columnName": "x_test_3",
+      "label": "test 3",
+      "dataType": "STRING",
+      "sqlType": "VARCHAR(255)",
+      "required": true,
+      "appliesToProductType": null,
+      "validationRegex": null
+    }
+  ]
+}
