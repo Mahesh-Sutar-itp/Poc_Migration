@@ -68,7 +68,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     let message = `Request failed (${res.status})`;
     try {
       const problem = await res.json();
-      message = problem.detail || problem.message || message;
+      // FastAPI's own validation errors (422) send `detail` as a list of
+      // {loc, msg, type} objects, not a string -- everything else in this
+      // app sends a plain string. Without this, `detail` renders as
+      // "[object Object]" wherever the error message is displayed.
+      if (Array.isArray(problem.detail)) {
+        message = problem.detail.map((e: { loc?: unknown[]; msg?: string }) => {
+          const field = Array.isArray(e.loc) ? e.loc[e.loc.length - 1] : undefined;
+          return field ? `${field}: ${e.msg}` : e.msg;
+        }).join('; ') || message;
+      } else {
+        message = problem.detail || problem.message || message;
+      }
     } catch {
       // response had no JSON body
     }

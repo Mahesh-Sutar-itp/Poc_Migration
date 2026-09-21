@@ -24,7 +24,6 @@ class ChangeRequestSchema(CamelModel):
 
 
 class ChangeRequestCreateRequest(BaseModel):
-    productId: int
     title: str = Field(..., min_length=1)
     description: str | None = None
     reason: str | None = None
