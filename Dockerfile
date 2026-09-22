@@ -9,6 +9,7 @@ COPY app/ app/
 COPY alembic/ alembic/
 COPY alembic.ini .
 COPY tests/ tests/
+COPY formcraft-plm/formcraft-plm/src/main/resources/db/migration/ formcraft-plm/formcraft-plm/src/main/resources/db/migration/
 RUN uv pip install --system ".[dev]"
 
 EXPOSE 8080
